@@ -34,6 +34,34 @@ Rest APIs - so far
 
 ## Email
 
+## Docker:
+Note:
+webapp is of JRE JavaSE-17
+Docker is also of openjdk 17
+
+docker pull openjdk
+docker pull mysql
+- creates respective images
+
+Create mysql container:
+``docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=password123 -e MYSQL_DATABASE=todo -e MYSQL_USER=root -e MYSQL_PASSWORD=password123 -d mysql:8 tail -f /dev/null``
+(tail -f /dev/null  to make it run in foreground so container doesn’t exists immediately)
+
+in application.properties: jdbc.url – should point to above container name and not localhost
+
+To list images:
+docker images
+
+To list containers:
+docker container ls
+
+Create docker image for webapplication: (inside ur project repo -where Dockerfile exists; ie: webapp/) 
+``docker build . -t todo-webapp``
+
+create docker containerization: 
+``docker run -d -p 8080:8080 --name webapp-container --link mysql-container:mysql todo-webapp tail -f /dev/null``
+
+our jar name is also todo-webapp
 
 
 To setup MySQL in your local machine (mac):

@@ -44,10 +44,13 @@ docker pull mysql
 - creates respective images
 
 Create mysql container:
-``docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=password123 -e MYSQL_DATABASE=todo -e MYSQL_USER=root -e MYSQL_PASSWORD=password123 -d mysql:8 tail -f /dev/null``
-(tail -f /dev/null  to make it run in foreground so container doesn’t exists immediately)
+```
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=password123 -e MYSQL_DATABASE=todo -e -d mysql:8
+```
+(appending "tail -f /dev/null" - to make it run in foreground so container doesn’t exists immediately. But dont append. Both containers are supposed to run in background.)
 
 in application.properties: jdbc.url – should point to above container name and not localhost
+(jdbc.url = jdbc:mysql://mysql-container:3306/todo)
 
 To list images:
 docker images
@@ -56,13 +59,18 @@ To list containers:
 docker container ls
 
 Create docker image for webapplication: (inside ur project repo -where Dockerfile exists; ie: webapp/) 
-``docker build . -t todo-webapp``
+```
+docker build . -t todo-webapp
+```
 
 create docker containerization: 
-``docker run -d -p 8080:8080 --name webapp-container --link mysql-container:mysql todo-webapp tail -f /dev/null``
+```
+docker run -d -p 8080:8080 --name webapp-container --link mysql-container:mysql todo-webapp
+```
 
 our jar name is also todo-webapp
 
+now, hit http://localhost:8080/user/create, data will be saved into db inside that docker container
 
 To setup MySQL in your local machine (mac):
 1. Install MySQL from official website. version 8.0.31 or any.

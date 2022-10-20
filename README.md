@@ -35,12 +35,13 @@ Rest APIs - so far
 ## Email
 
 ## Docker:
-Note:
-webapp is of JRE JavaSE-17
-Docker is also of openjdk 17
+Notes:
+webapp is of JRE JavaSE-17 <br/>
+Docker is also of openjdk 17 <br/>
+No need to create todo database or user table manually. All will be done automatically. <br/>
 
-docker pull openjdk
-docker pull mysql
+docker pull openjdk <br/>
+docker pull mysql <br/>
 - creates respective images
 
 Create mysql container:
@@ -49,13 +50,13 @@ docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=password123 -e MYSQL_DA
 ```
 (appending "tail -f /dev/null" - to make it run in foreground so container doesn’t exists immediately. But dont append. Both containers are supposed to run in background.)
 
-in application.properties: jdbc.url – should point to above container name and not localhost
+in application.properties: jdbc.url – should point to above container name and not localhost <br/>
 (jdbc.url = jdbc:mysql://mysql-container:3306/todo)
 
-To list images:
+To list images: <br/>
 docker images
 
-To list containers:
+To list containers: <br/>
 docker container ls
 
 Create docker image for webapplication: (inside ur project repo -where Dockerfile exists; ie: webapp/) 
@@ -71,6 +72,15 @@ docker run -d -p 8080:8080 --name webapp-container --link mysql-container:mysql 
 our jar name is also todo-webapp
 
 now, hit http://localhost:8080/user/create, data will be saved into db inside that docker container
+
+Create Docker Tags:
+docker tag todo-webapp:latest csye7125fall2022group03/dockrepo:myfirsttodowebapp
+docker tag mysql:8 csye7125fall2022group03/dockrepo:myfirstmysql
+
+Push images into Docker hub repositories:
+docker push csye7125fall2022group03/dockrepo:myfirsttodowebapp
+docker push csye7125fall2022group03/dockrepo:myfirstmysql
+
 
 To setup MySQL in your local machine (mac):
 1. Install MySQL from official website. version 8.0.31 or any.

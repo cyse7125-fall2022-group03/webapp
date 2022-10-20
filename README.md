@@ -74,12 +74,20 @@ our jar name is also todo-webapp
 now, hit http://localhost:8080/user/create, data will be saved into db inside that docker container
 
 Create Docker Tags:
+```
 docker tag todo-webapp:latest csye7125fall2022group03/dockrepo:myfirsttodowebapp
+```
+```
 docker tag mysql:8 csye7125fall2022group03/dockrepo:myfirstmysql
+```
 
 Push images into Docker hub repositories:
+```
 docker push csye7125fall2022group03/dockrepo:myfirsttodowebapp
+```
+```
 docker push csye7125fall2022group03/dockrepo:myfirstmysql
+```
 
 
 To setup MySQL in your local machine (mac):

@@ -1,4 +1,7 @@
-CREATE DATABASE IF NOT EXISTS todo;
+mysql -u root -p
+pwd: password123
+
+/*CREATE DATABASE IF NOT EXISTS todo;*/
 
 USE todo;
 

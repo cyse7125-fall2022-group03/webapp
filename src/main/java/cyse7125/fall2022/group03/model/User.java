@@ -1,10 +1,11 @@
 package cyse7125.fall2022.group03.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
-
-import com.alibaba.fastjson.annotation.JSONField;
 
 import lombok.Data;
 

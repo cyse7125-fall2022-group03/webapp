@@ -13,7 +13,7 @@ import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.service.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/v1")
 public class UserController {
 	
     @Autowired

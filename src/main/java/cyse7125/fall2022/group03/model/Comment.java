@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,12 +11,12 @@ import lombok.Data;
 
 @Data
 @Entity
-@IdClass(value = CommentIdentity.class)
+//@IdClass(value = CommentIdentity.class)
 @GenericGenerator(name = "jpa-uuid", strategy = "uuid")
 public class Comment {
     
-    @Id
-    private String taskId;
+    //@Id
+    //private String taskId;
     @Id
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id",length = 32)
@@ -33,19 +32,20 @@ public class Comment {
     public Comment() {
         super();
     }
-    public Comment(String taskId, String comment, String commentCreated, String commentUpdated) {
+    //public Comment(String taskId, String comment, String commentCreated, String commentUpdated) {
+    public Comment(String comment, String commentCreated, String commentUpdated) {
         super();
-        this.taskId = taskId;
+        //this.taskId = taskId;
         this.comment = comment;
         this.commentCreated = commentCreated;
         this.commentUpdated = commentUpdated;
     }
-    public String getTaskId() {
-        return taskId;
-    }
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
+//    public String getTaskId() {
+//        return taskId;
+//    }
+//    public void setTaskId(String taskId) {
+//        this.taskId = taskId;
+//    }
     public String getCommentId() {
         return commentId;
     }

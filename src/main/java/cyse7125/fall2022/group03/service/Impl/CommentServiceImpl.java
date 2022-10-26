@@ -1,8 +1,13 @@
 package cyse7125.fall2022.group03.service.Impl;
 
+import cyse7125.fall2022.group03.service.CommentService;
+
 public class CommentServiceImpl implements CommentService {
 
-        @Autowired
+    
+    //createComment - taken care in Repository file
+
+    /*    @Autowired
     TagRepository tagRepository;
     
     @Autowired
@@ -52,5 +57,5 @@ public class CommentServiceImpl implements CommentService {
         
         return new ResponseEntity<>(JSONObject.parseObject(messageString),status);
     }
-
+*/
 }

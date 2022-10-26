@@ -2,11 +2,17 @@ package cyse7125.fall2022.group03.model;
 
 
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,7 +31,7 @@ public class Task {
     private String listId;
     @Id
     @GeneratedValue(generator = "jpa-uuid")
-    @Column(name = "id",length = 32)
+    @Column(name = "taskId",length = 32)
     private String taskId;
     
     private String summary;
@@ -35,13 +41,39 @@ public class Task {
     private String accountCreated;
     @Column(name = "account_updated", nullable = false)
     private String accountUpdated;
+    
+    @OneToMany(targetEntity = Tag.class,cascade = CascadeType.ALL)
+    @JoinColumns({
+        @JoinColumn(name = "taskId"),
+        @JoinColumn(name = "userId"),
+        @JoinColumn(name = "listId")
+    })
+    private List<Tag> tagList;
+    
+    @OneToMany(targetEntity = Comment.class,cascade = CascadeType.ALL)
+    @JoinColumns({
+        @JoinColumn(name = "taskId"),
+        @JoinColumn(name = "userId"),
+        @JoinColumn(name = "listId")
+    })
+    private List<Comment> commentList;
+    
+    @OneToMany(targetEntity = Remainder.class,cascade = CascadeType.ALL)
+    @JoinColumns({
+        @JoinColumn(name = "taskId"),
+        @JoinColumn(name = "userId"),
+        @JoinColumn(name = "listId")
+    })
+    private List<Remainder> remainderList;
       
     
     public Task() {
         super();
     }
+
+
     public Task(String userId, String listId, String summary, String name, String dueDate, String accountCreated,
-            String accountUpdated) {
+            String accountUpdated, List<Tag> tagList, List<Comment> commentList, List<Remainder> remainderList) {
         super();
         this.userId = userId;
         this.listId = listId;
@@ -50,54 +82,119 @@ public class Task {
         this.dueDate = dueDate;
         this.accountCreated = accountCreated;
         this.accountUpdated = accountUpdated;
+        this.tagList = tagList;
+        this.commentList = commentList;
+        this.remainderList = remainderList;
     }
+
+
     public String getUserId() {
         return userId;
     }
+
+
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+
     public String getListId() {
         return listId;
     }
+
+
     public void setListId(String listId) {
         this.listId = listId;
     }
+
+
     public String getTaskId() {
         return taskId;
     }
+
+
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
+
     public String getSummary() {
         return summary;
     }
+
+
     public void setSummary(String summary) {
         this.summary = summary;
     }
+
+
     public String getName() {
         return name;
     }
+
+
     public void setName(String name) {
         this.name = name;
     }
+
+
     public String getDueDate() {
         return dueDate;
     }
+
+
     public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
     }
+
+
     public String getAccountCreated() {
         return accountCreated;
     }
+
+
     public void setAccountCreated(String accountCreated) {
         this.accountCreated = accountCreated;
     }
+
+
     public String getAccountUpdated() {
         return accountUpdated;
     }
+
+
     public void setAccountUpdated(String accountUpdated) {
         this.accountUpdated = accountUpdated;
+    }
+
+
+    public List<Tag> getTagList() {
+        return tagList;
+    }
+
+
+    public void setTagList(List<Tag> tagList) {
+        this.tagList = tagList;
+    }
+
+
+    public List<Comment> getCommentList() {
+        return commentList;
+    }
+
+
+    public void setCommentList(List<Comment> commentList) {
+        this.commentList = commentList;
+    }
+
+
+    public List<Remainder> getRemainderList() {
+        return remainderList;
+    }
+
+
+    public void setRemainderList(List<Remainder> remainderList) {
+        this.remainderList = remainderList;
     }
     
     

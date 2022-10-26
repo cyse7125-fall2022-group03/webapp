@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User " + username + " was not found in database");
         }
         String password = userInfo.getPassword();
-        
+        System.out.println("password= " + password);
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_USER");
         grantedAuthorities.add(grantedAuthority);

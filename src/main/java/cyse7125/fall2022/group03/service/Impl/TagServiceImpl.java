@@ -38,8 +38,7 @@ public class TagServiceImpl implements TagService {
             
             User user = userServiceImpl.getCurrentUser();
             
-            //Task task = taskRepository.findByTaskId(newTag.getTagId()); //byuser id and task id
-            
+            //Task task = taskRepository.findByTaskId(newTag.getTagId()); //byuser id and task id            
             //if( task == null) {
                 //return generateResponse("{\"error\":\"You have no tasks or You dont have such a task\"}", HttpStatus.BAD_REQUEST);
             //}

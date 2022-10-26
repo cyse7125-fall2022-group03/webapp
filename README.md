@@ -113,8 +113,25 @@ d. Now type command source ~/.zshrc to apply changes.
 
 ## Rest API end-points:
 
-1. http://localhost:8081/v1/create - create a user
-Post
+
+
+1. create user (by default = 1 list for that user will be created as well) (only non-auth endpoint)
+2. get user details
+3. create a new list
+4. create a task (task request body should have for tags, comment, remainders = so tag, comment, remainder will also be created along with task, if available in request body) [also: TAG will have check if user already have that tag previously it gets refered to that tag]
+{in short: tag is 'user' level;
+comments/remainders are 'task' level
+tasks are 'list' level}
+5. view all lists (of user)
+6. view particular list (of user)
+7. view all tasks (the main page of todo app - aka v1/user/self) under all lists (of user)
+8. view all tasks under a list (of user)
+9. view a particular task under a list (of user)
+
+
+1. create user
+http://localhost:8080/v1/create (only non auth end point)
+Post request
 {
     "firstName" : "Vignesh",
     "middleName" : "G",
@@ -134,175 +151,378 @@ response:
     "accountUpdated": "Fri Oct 21 07:13:37 EDT 2022"
 }
 
-2. http://localhost:8081/v1/user/self - all tasks - kinda main page
-GET
+2. get user details
+http://localhost:8080/v1/user
+GET  request: no
+Basic auth: vig7@gmail.com/password123
+response:
+{
+    "firstName": "Vignesh",
+    "lastName": "Gunasekaran",
+    "accountCreated": "Wed Oct 26 18:51:18 EDT 2022",
+    "middleName": "G",
+    "id": "ff80808184167dbf0184167e2e1b0000",
+    "email": "vig7@gmail.com",
+    "accountUpdated": "Wed Oct 26 18:51:18 EDT 2022"
+}
+
+7. view all tasks aka home page
+http://localhost:8080/v1/user/self
+GET  request: no
+Basic auth: vig7@gmail.com/password123
+response:
+{
+    "success": "You have no tasks, start creating"
+}
+
+3. create a list
+http://localhost:8080/v1/user/list/create
+POST request Basic auth: vig7@gmail.com/password123
+{
+    "name" : "list4"
+}
+response:
+{
+    "listId": "ff80808184167dbf0184168fc6fb0009",
+    "accountCreated": "Wed Oct 26 19:10:32 EDT 2022",
+    "name": "list4",
+    "userId": "ff80808184167dbf0184167e2e1b0000",
+    "accountUpdated": "Wed Oct 26 19:10:32 EDT 2022"
+}
+
+5. get all lists
+http://localhost:8080/v1/user/lists
+GET  request: no
 Basic auth: vig7@gmail.com/password123
 response:
 {
     "List": [
         {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "summary": "apples are good",
-            "accountCreated": "Fri Oct 21 09:50:36 EDT 2022",
-            "dueDate": "Fri Oct 21 07:19:45 EDT 2022",
-            "name": "eat",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183facf5a390000",
-            "accountUpdated": "Fri Oct 21 09:50:36 EDT 2022"
+            "listId": "ff80808184167dbf0184167e2e3e0001",
+            "accountCreated": "Wed Oct 26 18:51:18 EDT 2022",
+            "name": "List1",
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "accountUpdated": "Wed Oct 26 18:51:18 EDT 2022"
         },
         {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "summary": "grapes are good",
-            "accountCreated": "Fri Oct 21 09:53:59 EDT 2022",
-            "dueDate": "Fri Oct 24 07:19:45 EDT 2022",
-            "name": "drink",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183fad271560001",
-            "accountUpdated": "Fri Oct 21 09:53:59 EDT 2022"
+            "listId": "ff80808184167dbf0184167e58960002",
+            "accountCreated": "Wed Oct 26 18:51:29 EDT 2022",
+            "name": "list3",
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "accountUpdated": "Wed Oct 26 18:51:29 EDT 2022"
         },
         {
-            "listId": "ff80808183fac2b50183fae7de120002",
+            "listId": "ff80808184167dbf0184168fc6fb0009",
+            "accountCreated": "Wed Oct 26 19:10:32 EDT 2022",
+            "name": "list4",
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "accountUpdated": "Wed Oct 26 19:10:32 EDT 2022"
+        }
+    ]
+}
+
+6. get a list - same as 5 but just 1 is displayed
+http://localhost:8080/v1/user/list/ff80808184167dbf0184167e58960002
+
+8. get all tasks under a list 
+http://localhost:8080/v1/user/task/ff80808183fa3f6f0183fa453e3f0002
+{
+    "error": "You dont have such a list"
+}
+http://localhost:8080/v1/user/task/ff80808184167dbf0184167e58960002
+{
+    "List": [
+        {
+            "commentList": [
+                {
+                    "commentCreated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "commentId": "ff80808184167dbf0184167fe8c50003",
+                    "comment": "have to do",
+                    "commentUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "listId": "ff80808184167dbf0184167e58960002",
             "summary": "walks are good",
-            "accountCreated": "Fri Oct 21 10:20:34 EDT 2022",
+            "tagList": [],
+            "accountCreated": "Wed Oct 26 18:53:12 EDT 2022",
             "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
             "name": "walk",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183faeaca180003",
-            "accountUpdated": "Fri Oct 21 10:20:34 EDT 2022"
+            "remainderList": [
+                {
+                    "remainderUpdated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "remainderId": "ff80808184167dbf0184167fe8c90004",
+                    "remainderCreated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "taskId": "ff80808184167dbf0184167fe8d30005",
+            "accountUpdated": "Wed Oct 26 18:53:12 EDT 2022"
         }
     ]
 }
-//pending is need to include empty lists in this api.
-
-3. http://localhost:8081/v1/user/list/create - create a list
-POST
-Basic auth: vig7@gmail.com/password123
-{
-    "name" : "list3"
-}
-response:
-{
-    "listId": "ff80808183fac2b50183fae7de120002",
-    "accountCreated": "Fri Oct 21 10:17:23 EDT 2022",
-    "name": "list3",
-    "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-    "accountUpdated": "Fri Oct 21 10:17:23 EDT 2022"
-}
-
-4. http://localhost:8081/v1/user/list/ff80808183fac2b50183fae7de120002
-GET - view a list
-Basic auth: vig7@gmail.com/password123
-response:
+9. get a particular task under a list - same as 7 but just 1 is displayed
+http://localhost:8080/v1/user/task/ff80808184167dbf0184167e58960002/ff80808184167dbf0184167fe8d30005
 {
     "List": [
         {
-            "listId": "ff80808183fac2b50183fae7de120002",
-            "accountCreated": "Fri Oct 21 10:17:23 EDT 2022",
-            "name": "list3",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "accountUpdated": "Fri Oct 21 10:17:23 EDT 2022"
+            "commentList": [
+                {
+                    "commentCreated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "commentId": "ff80808184167dbf0184167fe8c50003",
+                    "comment": "have to do",
+                    "commentUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "listId": "ff80808184167dbf0184167e58960002",
+            "summary": "walks are good",
+            "tagList": [],
+            "accountCreated": "Wed Oct 26 18:53:12 EDT 2022",
+            "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
+            "name": "walk",
+            "remainderList": [
+                {
+                    "remainderUpdated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "remainderId": "ff80808184167dbf0184167fe8c90004",
+                    "remainderCreated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "taskId": "ff80808184167dbf0184167fe8d30005",
+            "accountUpdated": "Wed Oct 26 18:53:12 EDT 2022"
         }
     ]
 }
-
-5. http://localhost:8081/v1/user/lists
-GET- view all lists
-Basic auth: vig7@gmail.com/password123
-response:
+another request: http://localhost:8080/v1/user/task/ff80808184167dbf0184167e58960002/abc
 {
-    "List": [
-        {
-            "listId": "ff80808183fa3f6f0183fa3fa1380001",
-            "accountCreated": "Fri Oct 21 07:13:37 EDT 2022",
-            "name": "List1",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "accountUpdated": "Fri Oct 21 07:13:37 EDT 2022"
-        },
-        {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "accountCreated": "Fri Oct 21 07:19:45 EDT 2022",
-            "name": "list2",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "accountUpdated": "Fri Oct 21 07:19:45 EDT 2022"
-        },
-        {
-            "listId": "ff80808183fac2b50183fae7de120002",
-            "accountCreated": "Fri Oct 21 10:17:23 EDT 2022",
-            "name": "list3",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "accountUpdated": "Fri Oct 21 10:17:23 EDT 2022"
-        }
-    ]
+    "error": "You have no tasks or You dont have such a list/task"
 }
 
-6. http://localhost:8081/v1/user/task/create
-POST - create a task
-Basic auth: vig7@gmail.com/password123
+
+
+4. create task
+http://localhost:8080/v1/user/task/create
+POST request Basic auth: vig7@gmail.com/password123
 {
     "summary" : "walks are good",
     "name" : "walk",
     "dueDate" : "Fri Oct 23 07:19:45 EDT 2022",
-    "listId" : "ff80808183fac2b50183fae7de120002"
+    "listId" : "ff80808184167dbf0184167e58960002",
+    "tagList" : [
+        {
+            "tagname" : "important"
+        }
+    ],
+    "commentList" : [
+        {
+            "comment" : "have to do"
+        }
+    ],
+    "remainderList" : [
+        {
+        }
+    ]
 }
+
 response:
 {
-    "listId": "ff80808183fac2b50183fae7de120002",
+    "commentList": [
+        {
+            "commentCreated": "Wed Oct 26 18:53:12 EDT 2022",
+            "commentId": "ff80808184167dbf0184167fe8c50003",
+            "comment": "have to do",
+            "commentUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+        }
+    ],
+    "listId": "ff80808184167dbf0184167e58960002",
     "summary": "walks are good",
-    "accountCreated": "Fri Oct 21 10:20:34 EDT 2022",
+    "tagList": [
+        {
+            "tagname": "important",
+            "useri": "ff80808184167dbf0184167e2e1b0000",
+            "tagCreated": "Wed Oct 26 18:53:12 EDT 2022",
+            "tagUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+        }
+    ],
+    "accountCreated": "Wed Oct 26 18:53:12 EDT 2022",
     "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
     "name": "walk",
-    "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-    "taskId": "ff80808183fac2b50183faeaca180003",
-    "accountUpdated": "Fri Oct 21 10:20:34 EDT 2022"
+    "remainderList": [
+        {
+            "remainderUpdated": "Wed Oct 26 18:53:12 EDT 2022",
+            "remainderId": "ff80808184167dbf0184167fe8c90004",
+            "remainderCreated": "Wed Oct 26 18:53:12 EDT 2022"
+        }
+    ],
+    "userId": "ff80808184167dbf0184167e2e1b0000",
+    "taskId": "ff80808184167dbf0184167fe8d30005",
+    "accountUpdated": "Wed Oct 26 18:53:12 EDT 2022"
 }
 
-7. http://localhost:8081/v1/user/task/ff80808183fa3f6f0183fa453e3f0002
-GET - list of tasks in a list
+4. create task
+http://localhost:8080/v1/user/task/create
+Description: 
+a. so first create the (above) task for a list. and again create (this) new task with another list, but with same tagname.
+b. here we are trying to use same tag - "important", which created for another task. in db will not create a tag again for this user. and tag is being updated with new time. (see created/updated time difference)
+
+POST request: Basic auth: vig7@gmail.com/password123
+{
+    "summary" : "dances are good",
+    "name" : "dance",
+    "dueDate" : "Fri Oct 23 07:19:45 EDT 2022",
+    "listId" : "ff80808184167dbf0184167e2e3e0001",
+    "tagList" : [
+        {
+            "tagname" : "important"
+        }
+    ],
+    "commentList" : [
+        {
+            "comment" : "have to do"
+        }
+    ],
+    "remainderList" : [
+        {
+        }
+    ]
+}
+rresponse: 
+{
+    "commentList": [
+        {
+            "commentCreated": "Wed Oct 26 18:55:36 EDT 2022",
+            "commentId": "ff80808184167dbf018416821c440006",
+            "comment": "have to do",
+            "commentUpdated": "Wed Oct 26 18:55:36 EDT 2022"
+        }
+    ],
+    "listId": "ff80808184167dbf0184167e2e3e0001",
+    "summary": "dances are good",
+    "tagList": [
+        {
+            "tagname": "important",
+            "tagCreated": "Wed Oct 26 18:53:12 EDT 2022",
+            "tagUpdated": "Wed Oct 26 18:55:36 EDT 2022"
+        }
+    ],
+    "accountCreated": "Wed Oct 26 18:55:36 EDT 2022",
+    "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
+    "name": "dance",
+    "remainderList": [
+        {
+            "remainderUpdated": "Wed Oct 26 18:55:36 EDT 2022",
+            "remainderId": "ff80808184167dbf018416821c490007",
+            "remainderCreated": "Wed Oct 26 18:55:36 EDT 2022"
+        }
+    ],
+    "userId": "ff80808184167dbf0184167e2e1b0000",
+    "taskId": "ff80808184167dbf018416821c580008",
+    "accountUpdated": "Wed Oct 26 18:55:36 EDT 2022"
+}
+
+
+7. view all tasks aka home page
+http://localhost:8080/v1/user/self
+GET  request: no
 Basic auth: vig7@gmail.com/password123
 response:
 {
     "List": [
         {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "summary": "apples are good",
-            "accountCreated": "Fri Oct 21 09:50:36 EDT 2022",
-            "dueDate": "Fri Oct 21 07:19:45 EDT 2022",
-            "name": "eat",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183facf5a390000",
-            "accountUpdated": "Fri Oct 21 09:50:36 EDT 2022"
+            "commentList": [
+                {
+                    "commentCreated": "Wed Oct 26 18:55:36 EDT 2022",
+                    "commentId": "ff80808184167dbf018416821c440006",
+                    "comment": "have to do",
+                    "commentUpdated": "Wed Oct 26 18:55:36 EDT 2022"
+                }
+            ],
+            "listId": "ff80808184167dbf0184167e2e3e0001",
+            "summary": "dances are good",
+            "tagList": [
+                {
+                    "tagname": "important",
+                    "tagCreated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "tagUpdated": "Wed Oct 26 18:55:36 EDT 2022"
+                }
+            ],
+            "accountCreated": "Wed Oct 26 18:55:36 EDT 2022",
+            "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
+            "name": "dance",
+            "remainderList": [
+                {
+                    "remainderUpdated": "Wed Oct 26 18:55:36 EDT 2022",
+                    "remainderId": "ff80808184167dbf018416821c490007",
+                    "remainderCreated": "Wed Oct 26 18:55:36 EDT 2022"
+                }
+            ],
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "taskId": "ff80808184167dbf018416821c580008",
+            "accountUpdated": "Wed Oct 26 18:55:36 EDT 2022"
         },
         {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "summary": "grapes are good",
-            "accountCreated": "Fri Oct 21 09:53:59 EDT 2022",
-            "dueDate": "Fri Oct 24 07:19:45 EDT 2022",
-            "name": "drink",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183fad271560001",
-            "accountUpdated": "Fri Oct 21 09:53:59 EDT 2022"
-        }
-    ]
-}
-
-8. http://localhost:8081/v1/user/task/ff80808183fa3f6f0183fa453e3f0002/ff80808183fac2b50183facf5a390000
-GET - get a task in a list
-Basic auth: vig7@gmail.com/password123
-response:
-{
-    "List": [
+            "commentList": [
+                {
+                    "commentCreated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "commentId": "ff80808184167dbf0184167fe8c50003",
+                    "comment": "have to do",
+                    "commentUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "listId": "ff80808184167dbf0184167e58960002",
+            "summary": "walks are good",
+            "tagList": [],
+            "accountCreated": "Wed Oct 26 18:53:12 EDT 2022",
+            "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
+            "name": "walk",
+            "remainderList": [
+                {
+                    "remainderUpdated": "Wed Oct 26 18:53:12 EDT 2022",
+                    "remainderId": "ff80808184167dbf0184167fe8c90004",
+                    "remainderCreated": "Wed Oct 26 18:53:12 EDT 2022"
+                }
+            ],
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "taskId": "ff80808184167dbf0184167fe8d30005",
+            "accountUpdated": "Wed Oct 26 18:53:12 EDT 2022"
+        },
         {
-            "listId": "ff80808183fa3f6f0183fa453e3f0002",
-            "summary": "apples are good",
-            "accountCreated": "Fri Oct 21 09:50:36 EDT 2022",
-            "dueDate": "Fri Oct 21 07:19:45 EDT 2022",
-            "name": "eat",
-            "userId": "ff80808183fa3f6f0183fa3fa0f90000",
-            "taskId": "ff80808183fac2b50183facf5a390000",
-            "accountUpdated": "Fri Oct 21 09:50:36 EDT 2022"
+            "commentList": [
+                {
+                    "commentCreated": "Wed Oct 26 19:11:01 EDT 2022",
+                    "commentId": "ff80808184167dbf018416903aa0000a",
+                    "comment": "have to do",
+                    "commentUpdated": "Wed Oct 26 19:11:01 EDT 2022"
+                }
+            ],
+            "listId": "ff80808184167dbf0184168fc6fb0009",
+            "summary": "dances are good",
+            "tagList": [
+                {
+                    "tagname": "apples",
+                    "useri": "ff80808184167dbf0184167e2e1b0000",
+                    "tagCreated": "Wed Oct 26 19:11:01 EDT 2022",
+                    "tagUpdated": "Wed Oct 26 19:11:01 EDT 2022"
+                }
+            ],
+            "accountCreated": "Wed Oct 26 19:11:01 EDT 2022",
+            "dueDate": "Fri Oct 23 07:19:45 EDT 2022",
+            "name": "dance",
+            "remainderList": [
+                {
+                    "remainderUpdated": "Wed Oct 26 19:11:01 EDT 2022",
+                    "remainderId": "ff80808184167dbf018416903aa5000b",
+                    "remainderCreated": "Wed Oct 26 19:11:01 EDT 2022"
+                }
+            ],
+            "userId": "ff80808184167dbf0184167e2e1b0000",
+            "taskId": "ff80808184167dbf018416903aac000c",
+            "accountUpdated": "Wed Oct 26 19:11:01 EDT 2022"
         }
     ]
 }
+ 
+
+
 
 // there are failure responses as well for all above cases
 

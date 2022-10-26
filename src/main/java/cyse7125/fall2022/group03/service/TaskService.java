@@ -13,5 +13,6 @@ public interface TaskService {
     ResponseEntity<JSONObject> createTask(Task task);
     ResponseEntity<JSONObject> getAllTasksUnderAList(String listId);
     ResponseEntity<JSONObject> getAllTasks(); //self
-    Task getATask(String listId, String taskId);
+    ResponseEntity<JSONObject> getATask(String listId, String taskId);
+    Task getATask(String taskId);
 }

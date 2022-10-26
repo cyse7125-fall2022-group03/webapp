@@ -12,10 +12,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cyse7125.fall2022.group03.model.Tag;
-import cyse7125.fall2022.group03.model.Task;
 import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.repository.TagRepository;
-import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.TagService;
 
 @Service
@@ -30,10 +28,10 @@ public class TagServiceImpl implements TagService {
     @Autowired
     TaskServicceImpl taskServicceImpl;
     
+    //not going to call this method
     @Override
     public ResponseEntity<JSONObject> createTag(Tag newTag) {
         
-        ResponseEntity<JSONObject> result;
         try {
             
             User user = userServiceImpl.getCurrentUser();
@@ -43,9 +41,10 @@ public class TagServiceImpl implements TagService {
                 //return generateResponse("{\"error\":\"You have no tasks or You dont have such a task\"}", HttpStatus.BAD_REQUEST);
             //}
             
-            Tag tagToPut = new Tag(user.getId(), newTag.getName(), String.valueOf(new Date()), String.valueOf(new Date()));
             
-            newTag = tagRepository.save(tagToPut);
+            //Tag tagToPut = new Tag(user.getId(), newTag.getTagname(), String.valueOf(new Date()), String.valueOf(new Date()));
+            
+            newTag = tagRepository.save(newTag);
             
     
         }catch (Exception e){

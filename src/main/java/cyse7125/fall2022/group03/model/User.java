@@ -18,7 +18,7 @@ public class User {
 	
 	@Id
 	@GeneratedValue(generator = "jpa-uuid")
-	@Column(length = 32)
+	@Column(name = "userId", length = 32)
 	private String id;
 	@Column(name = "first_name")
     private String firstName;

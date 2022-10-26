@@ -114,19 +114,17 @@ public class TaskServicceImpl implements TaskService {
         return generateResponse(actualLists, HttpStatus.CREATED);
     }
     
-    /*@Override
-    public ResponseEntity<JSONObject> getATask(String taskId) {
+    @Override
+    public Task getATask(String taskId) {
         
         User user = userServiceImpl.getCurrentUser();
         Task task = taskRepository.findByTaskId(taskId);
         
-        if( task == null) {
-            return generateResponse("{\"error\":\"You have no tasks or You dont have such a list/task\"}", HttpStatus.BAD_REQUEST);
-        }
-        
-        return generateResponse(task, HttpStatus.CREATED);
-    }*/
+        return task;
+    }
     
+    //validate isapttaskuser
+
     public ResponseEntity<JSONObject> generateResponse(Object messageObject, HttpStatus status) {
         if(messageObject instanceof List<?>) {
             if (((List<?>) messageObject).size()==0) {

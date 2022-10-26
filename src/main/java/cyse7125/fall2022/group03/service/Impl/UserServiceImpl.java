@@ -1,6 +1,7 @@
 package cyse7125.fall2022.group03.service.Impl;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 //import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import cyse7125.fall2022.group03.repository.ListsRepository;
 import cyse7125.fall2022.group03.repository.UserRepository;
 import cyse7125.fall2022.group03.service.UserService; 
 
-@Service("userService")
+@Service
 public class UserServiceImpl implements UserService {
     
     @Autowired
@@ -29,6 +30,9 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     ListsRepository listsRepository;
+    
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @SuppressWarnings("rawtypes")
     ResponseEntity NoContent = new ResponseEntity<>(JSONObject.parseObject(JSON.toJSONString(null)), HttpStatus.NO_CONTENT);
@@ -56,7 +60,8 @@ public class UserServiceImpl implements UserService {
         }
 
         //encode
-        String newPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        //String newPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        String newPassword = bCryptPasswordEncoder.encode(password);
         user.setPassword(newPassword);
         
         try{
@@ -94,6 +99,11 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(JSONObject.parseObject(JSON.toJSONString(messageObject)),status);
         
     }
+    public ResponseEntity<JSONObject> generateResponse(String messageString, HttpStatus status) {
+        
+        return new ResponseEntity<>(JSONObject.parseObject(messageString),status);
+    }
+
     
     public static String getCurrentUserEmail(){
         String currentUserEmail = "";
@@ -123,9 +133,63 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser(){
         String currentUserEmail = UserServiceImpl.getCurrentUserEmail();
         User user = userRepository.findByEmail(currentUserEmail);
+        //check for password ?
         return user;
-    }
+    } 
     
- 
+    public ResponseEntity<JSONObject> checkValidUser(User user){
+        if (user == null) {
+            return generateResponse("{\"error\":\"Email not registered\"}", HttpStatus.BAD_REQUEST);
+        }
+        
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println(((UserDetails)principal).toString());
+        String pwd = ((UserDetails)principal).getPassword();
+        System.out.println(pwd);
+        System.out.println(user.getPassword());
+        //String hashedPwd = BCrypt.hashpw(pwd, BCrypt.gensalt());
+
+        //if (user.getPassword().equals(pwd)) {
+        //    return generateResponse(user, HttpStatus.FOUND);
+        //}
+        //return generateResponse("{\"error\":\"Email & password do not match\"}", HttpStatus.BAD_REQUEST);
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<JSONObject> getUserDetails() {        
+        User user = getCurrentUser();
+        ResponseEntity<JSONObject> result = checkValidUser(user);
+        if (result != null) {
+            return result;
+        }
+        //password to be removed from json
+        return generateResponse(user, HttpStatus.FOUND);
+    }
+
+    @Override
+    public ResponseEntity<JSONObject> updateEmail(Map<String, String> request) {
+        User user = getCurrentUser();
+        ResponseEntity<JSONObject> result = checkValidUser(user);
+        if (result != null) {
+            return result;
+        }
+
+        String newEmail = request.get("email");
+        if (newEmail == null) {
+            return generateResponse("{\"error\":\"Please enter a valid value to key email\"}", HttpStatus.BAD_REQUEST);
+        }
+
+        User testUser = userRepository.findByEmail(newEmail);
+        if (testUser != null) {
+            return generateResponse("{\"error\":\"Email id already exists in DB\"}", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setEmail(newEmail);
+
+        userRepository.save(user);
+
+        return generateResponse(user, HttpStatus.ACCEPTED);
+    }
     
 }

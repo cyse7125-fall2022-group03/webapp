@@ -7,6 +7,8 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Data;
 
 @Data
@@ -26,7 +28,7 @@ public class User {
     private String lastName;
 	@Column(unique=true) 
     private String email;
-    //@JSONField(serialize = false)
+    @JSONField(serialize = false)
     private String password;
     @Column(name = "account_created", updatable = false, nullable = false)
     private String accountCreated;

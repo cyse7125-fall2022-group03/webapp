@@ -26,6 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println("---configure(HttpSecurity");
         http.csrf().disable();
         http.authorizeRequests()
                 .antMatchers("/v1/create").permitAll()
@@ -36,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
     @Override
     public void configure(WebSecurity web) throws Exception {
+        System.out.println("--- configure(WebSecurity");
         super.configure(web);
         //web.ignoring().antMatchers(HttpMethod.GET);
     }
@@ -47,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        System.out.println("--- configure(AuthenticationManagerBuilder");
         auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     }
     

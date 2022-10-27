@@ -19,7 +19,7 @@ public class User {
 	@Id
 	@GeneratedValue(generator = "jpa-uuid")
 	@Column(name = "userId", length = 32)
-	private String id;
+	private String userId;
 	@Column(name = "first_name")
     private String firstName;
 	@Column(name = "middle_name")
@@ -35,11 +35,26 @@ public class User {
     @Column(name = "account_updated", nullable = false)
     private String accountUpdated;
     
-    public String getId() {
-        return id;
+    public User() {
+        super();
     }
-    public void setId(String id) {
-        this.id = id;
+    public User(String firstName, String middleName, String lastName, String email, String password,
+            String accountCreated, String accountUpdated) {
+        super();
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.accountCreated = accountCreated;
+        this.accountUpdated = accountUpdated;
+    }
+    
+    public String getUserId() {
+        return userId;
+    }
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
     public String getFirstName() {
         return firstName;

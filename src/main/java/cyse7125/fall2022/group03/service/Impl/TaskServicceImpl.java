@@ -1,7 +1,5 @@
 package cyse7125.fall2022.group03.service.Impl;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -62,7 +60,7 @@ public class TaskServicceImpl implements TaskService {
                 return result;
             }
             
-            newTask.setUserId(user.getId());
+            newTask.setUserId(user.getUserId());
             //newTask.setListId(newTask.getListId());
             
             newTask.setAccountCreated(String.valueOf(new Date()));
@@ -81,7 +79,7 @@ public class TaskServicceImpl implements TaskService {
                     tag.setTagCreated(existTag.getTagCreated());
                 } 
                 else {
-                    tag.setUseri(user.getId());
+                    tag.setUseri(user.getUserId());
                     
                     tag.setTagCreated(String.valueOf(new Date()));
                     tag.setTagUpdated(String.valueOf(new Date()));
@@ -131,7 +129,7 @@ public class TaskServicceImpl implements TaskService {
     public ResponseEntity<JSONObject> getAllTasksUnderAList(String listId) {
         
         User user = userServiceImpl.getCurrentUser();
-        List<Task> listOfTasks = taskRepository.findByUserId(user.getId());
+        List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
         
         if( listOfTasks == null || listOfTasks.isEmpty()) {
             return generateResponse("{\"error\":\"You have no tasks, start creating\"}", HttpStatus.BAD_REQUEST);
@@ -156,7 +154,7 @@ public class TaskServicceImpl implements TaskService {
     public ResponseEntity<JSONObject> getAllTasks() {
 
         User user = userServiceImpl.getCurrentUser();
-        List<Task> listOfTasks = taskRepository.findByUserId(user.getId());
+        List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
         
         if( listOfTasks == null || listOfTasks.isEmpty()) {
             return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.CREATED);
@@ -169,7 +167,7 @@ public class TaskServicceImpl implements TaskService {
     public ResponseEntity<JSONObject> getATask(String listId, String taskId) {
         
         User user = userServiceImpl.getCurrentUser();
-        Optional<Task> task = taskRepository.findById(new TaskIdentity(user.getId(), listId, taskId));
+        Optional<Task> task = taskRepository.findById(new TaskIdentity(user.getUserId(), listId, taskId));
         
         if( task == null || task.isEmpty()) {
             return generateResponse("{\"error\":\"You have no tasks or You dont have such a list/task\"}", HttpStatus.BAD_REQUEST);
@@ -184,7 +182,7 @@ public class TaskServicceImpl implements TaskService {
     @Override
     public Task getATask(String taskId) {
         
-        User user = userServiceImpl.getCurrentUser();
+        //User user = userServiceImpl.getCurrentUser();
         Task task = taskRepository.findByTaskId(taskId);
         
         return task;

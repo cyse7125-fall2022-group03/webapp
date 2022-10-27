@@ -1,7 +1,5 @@
 package cyse7125.fall2022.group03.model;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

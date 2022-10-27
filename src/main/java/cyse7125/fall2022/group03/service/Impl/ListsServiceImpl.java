@@ -35,7 +35,7 @@ public class ListsServiceImpl implements ListsService {
             
             User user = userServiceImpl.getCurrentUser();
             
-            Lists listToPut = new Lists(user.getId(), newList.getName(), String.valueOf(new Date()), String.valueOf(new Date()));
+            Lists listToPut = new Lists(user.getUserId(), newList.getName(), String.valueOf(new Date()), String.valueOf(new Date()));
             
             newList = listsRepository.save(listToPut);
     
@@ -53,7 +53,7 @@ public class ListsServiceImpl implements ListsService {
     public ResponseEntity<JSONObject> getAllLists() {
         
         User user = userServiceImpl.getCurrentUser();
-        List<Lists> listOfLists = listsRepository.findByUserId(user.getId());
+        List<Lists> listOfLists = listsRepository.findByUserId(user.getUserId());
         
         if( listOfLists == null || listOfLists.isEmpty()) {
             return generateResponse("{\"error\":\"You dont have any list\"}", HttpStatus.BAD_REQUEST);
@@ -67,7 +67,7 @@ public class ListsServiceImpl implements ListsService {
     public ResponseEntity<JSONObject> getAList(String id) {
         
         User user = userServiceImpl.getCurrentUser();
-        Optional<Lists> list = listsRepository.findById(new ListsIdentity(user.getId(), id));
+        Optional<Lists> list = listsRepository.findById(new ListsIdentity(user.getUserId(), id));
         
         if( list == null || list.isEmpty()) {
             return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);

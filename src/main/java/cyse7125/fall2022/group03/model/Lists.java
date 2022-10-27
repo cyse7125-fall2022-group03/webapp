@@ -21,7 +21,7 @@ public class Lists {
     
     @Id
     @GeneratedValue(generator = "jpa-uuid")
-    @Column(name = "id",length = 32)
+    @Column(name = "listId",length = 32)
     private String listId;
     
     private String name;

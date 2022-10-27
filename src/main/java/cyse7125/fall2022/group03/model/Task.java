@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -42,27 +43,27 @@ public class Task {
     @Column(name = "account_updated", nullable = false)
     private String accountUpdated;
     
-    @OneToMany(targetEntity = Tag.class,cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Tag.class,cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumns({
+        @JoinColumn(name = "listId"),
         @JoinColumn(name = "taskId"),
-        @JoinColumn(name = "userId"),
-        @JoinColumn(name = "listId")
+        @JoinColumn(name = "userId")
     })
     private List<Tag> tagList;
     
-    @OneToMany(targetEntity = Comment.class,cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Comment.class,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumns({
+        @JoinColumn(name = "listId"),
         @JoinColumn(name = "taskId"),
-        @JoinColumn(name = "userId"),
-        @JoinColumn(name = "listId")
+        @JoinColumn(name = "userId")
     })
     private List<Comment> commentList;
     
-    @OneToMany(targetEntity = Remainder.class,cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Remainder.class,cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumns({
+        @JoinColumn(name = "listId"),
         @JoinColumn(name = "taskId"),
-        @JoinColumn(name = "userId"),
-        @JoinColumn(name = "listId")
+        @JoinColumn(name = "userId")
     })
     private List<Remainder> remainderList;
       

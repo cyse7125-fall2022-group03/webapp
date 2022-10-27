@@ -1,6 +1,5 @@
 package cyse7125.fall2022.group03.service.Impl;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cyse7125.fall2022.group03.model.Tag;
-import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.repository.TagRepository;
 import cyse7125.fall2022.group03.service.TagService;
 
@@ -34,7 +32,7 @@ public class TagServiceImpl implements TagService {
         
         try {
             
-            User user = userServiceImpl.getCurrentUser();
+            //User user = userServiceImpl.getCurrentUser();
             
             //Task task = taskRepository.findByTaskId(newTag.getTagId()); //byuser id and task id            
             //if( task == null) {

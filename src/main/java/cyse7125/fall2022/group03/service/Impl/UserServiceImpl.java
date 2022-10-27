@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             
             //Lists newList = new Lists(new ListsIdentity(user.getId()), "List1", String.valueOf(new Date()), String.valueOf(new Date()));
-            Lists newList = new Lists(user.getId(),"List1", String.valueOf(new Date()), String.valueOf(new Date()));
+            Lists newList = new Lists(user.getUserId(),"List1", String.valueOf(new Date()), String.valueOf(new Date()));
             
             listsRepository.save(newList);
 
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
     public String getCurrentUserID(){
         String currentUserEmail = UserServiceImpl.getCurrentUserEmail();
         User user = userRepository.findByEmail(currentUserEmail);
-        return user.getId();
+        return user.getUserId();
     }
     public User getCurrentUser(){
         String currentUserEmail = UserServiceImpl.getCurrentUserEmail();

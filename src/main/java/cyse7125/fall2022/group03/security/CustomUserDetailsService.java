@@ -23,10 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("---from loadUserByUsername: "+ username);
         User userInfo = userRepository.findByEmail(username);
         if (userInfo == null) {
+            System.out.println("userInfo= null");
             throw new UsernameNotFoundException("User " + username + " was not found in database");
         }
+        System.out.println("userInfo= " + userInfo.toString());
         String password = userInfo.getPassword();
         System.out.println("password= " + password);
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();

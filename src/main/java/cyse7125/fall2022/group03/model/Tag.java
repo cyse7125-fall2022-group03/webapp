@@ -2,20 +2,29 @@ package cyse7125.fall2022.group03.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
 
 @Data
 @Entity
 //@IdClass(value = TagIdentity.class)
-//@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
+@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
 public class Tag {
     
     //@Id
+    @Column(name = "useri")
     private String useri;
     
     @Id
+    @Column(name = "tagId")
+    @GeneratedValue(generator = "jpa-uuid")
+    private String tagId;
+    
     @Column(name = "tagname")
     private String tagname;
     
@@ -84,6 +93,16 @@ public class Tag {
     public void setTagUpdated(String tagUpdated) {
         this.tagUpdated = tagUpdated;
     }
+
+
+	public String getTagId() {
+		return tagId;
+	}
+
+
+	public void setTagId(String tagId) {
+		this.tagId = tagId;
+	}
 
    
 }

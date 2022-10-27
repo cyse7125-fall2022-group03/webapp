@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -43,6 +45,18 @@ public class Task {
     @Column(name = "account_updated", nullable = false)
     private String accountUpdated;
     
+    @Enumerated(EnumType.STRING)
+    private Priority priority;
+    public enum Priority {
+        high, medium, low
+    }
+    
+    @Enumerated(EnumType.STRING)
+    private Status status;
+    public enum Status {
+        TODO, OVERDUE, COMPLETE
+    }
+    
     @OneToMany(targetEntity = Tag.class,cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name = "listId"),
@@ -73,130 +87,152 @@ public class Task {
     }
 
 
-    public Task(String userId, String listId, String summary, String name, String dueDate, String accountCreated,
-            String accountUpdated, List<Tag> tagList, List<Comment> commentList, List<Remainder> remainderList) {
-        super();
-        this.userId = userId;
-        this.listId = listId;
-        this.summary = summary;
-        this.name = name;
-        this.dueDate = dueDate;
-        this.accountCreated = accountCreated;
-        this.accountUpdated = accountUpdated;
-        this.tagList = tagList;
-        this.commentList = commentList;
-        this.remainderList = remainderList;
-    }
+	public Task(String userId, String listId, String summary, String name, String dueDate, String accountCreated,
+			String accountUpdated, Priority priority, Status status, List<Tag> tagList, List<Comment> commentList,
+			List<Remainder> remainderList) {
+		super();
+		this.userId = userId;
+		this.listId = listId;
+		this.summary = summary;
+		this.name = name;
+		this.dueDate = dueDate;
+		this.accountCreated = accountCreated;
+		this.accountUpdated = accountUpdated;
+		this.priority = priority;
+		this.status = status;
+		this.tagList = tagList;
+		this.commentList = commentList;
+		this.remainderList = remainderList;
+	}
 
 
-    public String getUserId() {
-        return userId;
-    }
+	public String getUserId() {
+		return userId;
+	}
 
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
 
-    public String getListId() {
-        return listId;
-    }
+	public String getListId() {
+		return listId;
+	}
 
 
-    public void setListId(String listId) {
-        this.listId = listId;
-    }
+	public void setListId(String listId) {
+		this.listId = listId;
+	}
 
 
-    public String getTaskId() {
-        return taskId;
-    }
+	public String getTaskId() {
+		return taskId;
+	}
 
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
 
 
-    public String getSummary() {
-        return summary;
-    }
+	public String getSummary() {
+		return summary;
+	}
 
 
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
 
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
 
-    public String getDueDate() {
-        return dueDate;
-    }
+	public String getDueDate() {
+		return dueDate;
+	}
 
 
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
-    }
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
+	}
 
 
-    public String getAccountCreated() {
-        return accountCreated;
-    }
+	public String getAccountCreated() {
+		return accountCreated;
+	}
 
 
-    public void setAccountCreated(String accountCreated) {
-        this.accountCreated = accountCreated;
-    }
+	public void setAccountCreated(String accountCreated) {
+		this.accountCreated = accountCreated;
+	}
 
 
-    public String getAccountUpdated() {
-        return accountUpdated;
-    }
+	public String getAccountUpdated() {
+		return accountUpdated;
+	}
 
 
-    public void setAccountUpdated(String accountUpdated) {
-        this.accountUpdated = accountUpdated;
-    }
+	public void setAccountUpdated(String accountUpdated) {
+		this.accountUpdated = accountUpdated;
+	}
 
 
-    public List<Tag> getTagList() {
-        return tagList;
-    }
+	public Priority getPriority() {
+		return priority;
+	}
 
 
-    public void setTagList(List<Tag> tagList) {
-        this.tagList = tagList;
-    }
+	public void setPriority(Priority priority) {
+		this.priority = priority;
+	}
 
 
-    public List<Comment> getCommentList() {
-        return commentList;
-    }
+	public Status getStatus() {
+		return status;
+	}
 
 
-    public void setCommentList(List<Comment> commentList) {
-        this.commentList = commentList;
-    }
+	public void setStatus(Status status) {
+		this.status = status;
+	}
 
 
-    public List<Remainder> getRemainderList() {
-        return remainderList;
-    }
+	public List<Tag> getTagList() {
+		return tagList;
+	}
 
 
-    public void setRemainderList(List<Remainder> remainderList) {
-        this.remainderList = remainderList;
-    }
-    
+	public void setTagList(List<Tag> tagList) {
+		this.tagList = tagList;
+	}
+
+
+	public List<Comment> getCommentList() {
+		return commentList;
+	}
+
+
+	public void setCommentList(List<Comment> commentList) {
+		this.commentList = commentList;
+	}
+
+
+	public List<Remainder> getRemainderList() {
+		return remainderList;
+	}
+
+
+	public void setRemainderList(List<Remainder> remainderList) {
+		this.remainderList = remainderList;
+	}
     
 }

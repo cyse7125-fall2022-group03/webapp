@@ -7,38 +7,38 @@ public class TagIdentity implements Serializable{
     
     private static final long serialVersionUID = 1L;
     
-    private String userId;
-    private String tagId;
+    private String useri;
+    private String tagname;
     
     public TagIdentity() {
         
     }
 
-    public TagIdentity(String userId, String tagId) {
+    public TagIdentity(String useri, String tagname) {
         super();
-        this.userId = userId;
-        this.tagId = tagId;
+        this.useri = useri;
+        this.tagname = tagname;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUseri() {
+        return useri;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUseri(String useri) {
+        this.useri = useri;
     }
 
-    public String getTagId() {
-        return tagId;
+    public String getTagname() {
+        return tagname;
     }
 
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
+    public void setTagname(String tagname) {
+        this.tagname = tagname;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tagId, userId);
+        return Objects.hash(tagname, useri);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TagIdentity implements Serializable{
         if (getClass() != obj.getClass())
             return false;
         TagIdentity other = (TagIdentity) obj;
-        return Objects.equals(tagId, other.tagId) && Objects.equals(userId, other.userId);
+        return Objects.equals(tagname, other.tagname) && Objects.equals(useri, other.useri);
     }
     
 }

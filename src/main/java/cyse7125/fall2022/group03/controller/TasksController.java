@@ -66,6 +66,15 @@ public class TasksController {
             return generateResponse("{\"error\":\"Request cant hold User ID - Not allowed to see others\"}", HttpStatus.BAD_REQUEST);
         }
         
+//        Task.Priority priority = newTask.getPriority();
+//        if (priority != Task.Priority.high || priority != Task.Priority.low || priority != Task.Priority.medium) {
+//        	return generateResponse("{\"error\":\"Priority can be only medium/low/high\"}", HttpStatus.BAD_REQUEST);
+//        }
+        
+        if (newTask.getStatus() != null) {
+            return generateResponse("{\"error\":\"Request cant hold Status value in create\"}", HttpStatus.BAD_REQUEST);
+        }
+        
         return taskService.createTask(newTask);
     }
     

@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,6 @@ import com.alibaba.fastjson.JSONObject;
 import cyse7125.fall2022.group03.model.Comment;
 import cyse7125.fall2022.group03.model.Remainder;
 import cyse7125.fall2022.group03.model.Tag;
-import cyse7125.fall2022.group03.model.TagIdentity;
 import cyse7125.fall2022.group03.model.Task;
 import cyse7125.fall2022.group03.model.TaskIdentity;
 import cyse7125.fall2022.group03.model.User;
@@ -97,19 +94,26 @@ public class TaskServicceImpl implements TaskService {
                     
             			tag.setTagCreated(String.valueOf(new Date()));
             			tag.setTagUpdated(String.valueOf(new Date()));
+            			
+            			//tag.setTaskObject(newTask); //?
                     
             			tagRepository.save(tag);
             		} else {
             			//List<Tag> actualLists = existTagList.isPresent() ? Collections.singletonList(existTagList.get()) : Collections.emptyList();
             			Tag existTag = existTagList.get(0);
-            			System.out.println(existTag.toString());
+            			
+            			tag.setUseri(user.getUserId());
             			//need not, but good, as tag is being updated by linking to new task
                     
             			//existTag.setTagUpdated(String.valueOf(new Date()));     //will get error, because models should have all variables have value while save method is called in 117
             			tag.setTagUpdated(String.valueOf(new Date()));
-            			tag.setTagCreated(String.valueOf(new Date()));
+            			tag.setTagCreated(existTag.getTagCreated());
+            			
+            			//tag.setTaskObject(newTask);
                     
             			//tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), user.getUserId());		//update tagUpdated in multiple taskid rows
+            			//tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), existTag.getTaskObject().getTaskId());		//update tagUpdated in multiple taskid rows
+            			tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), tag.getUseri());	
             			tagRepository.save(tag);
             		}               
             	}
@@ -249,9 +253,10 @@ public class TaskServicceImpl implements TaskService {
         try {
             
             User user = userServiceImpl.getCurrentUser();
-            Task existingTask = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
+            Task existingTaskToUpdate = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
             
-            if (existingTask == null) {
+            
+            if (existingTaskToUpdate == null) {
             	return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.BAD_REQUEST);
             }
             
@@ -262,7 +267,7 @@ public class TaskServicceImpl implements TaskService {
             	return generateResponse("{\"error\":\"Can't update Updated Date\"}", HttpStatus.BAD_REQUEST);
             }
             
-            if (newTask.getListId() != null && existingTask.getListId() != newTask.getListId()) {
+            if (newTask.getListId() != null && existingTaskToUpdate.getListId() != newTask.getListId()) {
             	// moving to other list
             	
             	//is the newlist of same user
@@ -270,43 +275,125 @@ public class TaskServicceImpl implements TaskService {
                 if (result.getStatusCode() == HttpStatus.BAD_REQUEST) {
                     return result;
                 }
-                
-            	//nothing to remove from Lists table, as we maintain only in Tasks table.
-            	taskRepository.updateListId(newTask.getListId(), existingTask.getTaskId(), existingTask.getUserId(), existingTask.getListId());
+                //nothing to remove from Lists table, as we maintain only in Tasks table.
+            	taskRepository.updateListId(newTask.getListId(), existingTaskToUpdate.getTaskId(), existingTaskToUpdate.getUserId(), existingTaskToUpdate.getListId());
             	
 //            	if (updateResult != 1) {
 //            		return generateResponse("{\"error\":\"Error during moving to another listid\"}", HttpStatus.BAD_REQUEST);
 //            	}
             		
-            	existingTask.setListId(newTask.getListId());
+            	existingTaskToUpdate.setListId(newTask.getListId());
             }
             
             //have to change if datatype of duedate is not string
             // compare due is future from now ?
-            if (newTask.getDueDate() != null && !newTask.getDueDate().equals(existingTask.getDueDate())) {            	
+            if (newTask.getDueDate() != null && !newTask.getDueDate().equals(existingTaskToUpdate.getDueDate())) {            	
             	
-            	existingTask.setDueDate(newTask.getDueDate());
+            	existingTaskToUpdate.setDueDate(newTask.getDueDate());
             	
-            	if (existingTask.getStatus() == Task.Status.OVERDUE) {
-            		existingTask.setStatus(Task.Status.TODO);
+            	if (existingTaskToUpdate.getStatus() == Task.Status.OVERDUE) {
+            		existingTaskToUpdate.setStatus(Task.Status.TODO);
             	}
             }
             
             if (newTask.getSummary() != null) {
-            	existingTask.setSummary(newTask.getSummary());
+            	existingTaskToUpdate.setSummary(newTask.getSummary());
             }
             if (newTask.getName() != null) {
-            	existingTask.setName(newTask.getName());
+            	existingTaskToUpdate.setName(newTask.getName());
             }
             if (newTask.getStatus() != null) {
-            	existingTask.setStatus(newTask.getStatus());
+            	existingTaskToUpdate.setStatus(newTask.getStatus());
             }
             if (newTask.getPriority() != null) {
-            	existingTask.setPriority(newTask.getPriority());
+            	existingTaskToUpdate.setPriority(newTask.getPriority());
+            }
+            
+            /*
+            if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
+            	
+            	List<Tag> tagList = newTask.getTagList();
+                for (Tag tag: tagList) {
+                    
+                	if (tag.getTagname() == null || tag.getTagname().isEmpty()) {
+                		return generateResponse("{\"error\":\"Better have empty tagList rather than having a tag with no name\"}", HttpStatus.BAD_REQUEST);
+                	}
+                    //if tag available use it, else new one
+                	List<Tag> existTagList = tagRepository.findTagByTagnameAndUserId(tag.getTagname(), user.getUserId());	//? this userid or from object id  ?
+                	//Optional<Tag> existTagList = tagRepository.findById(new TagIdentity(user.getUserId(), tag.getTagname()));
+                	
+                	if( existTagList == null || existTagList.isEmpty()) {
+                        //create new tag
+                		tag.setUseri(user.getUserId());
+                		//tagName pre-exists
+                        
+                        tag.setTagCreated(String.valueOf(new Date()));
+                        tag.setTagUpdated(String.valueOf(new Date()));
+                        
+                        tag.setTaskObject(existingTaskToUpdate); //?
+                        
+                        tagRepository.save(tag);
+                    } else {
+                    	//List<Tag> actualLists = existTagList.isPresent() ? Collections.singletonList(existTagList.get()) : Collections.emptyList();
+                    	Tag existTagForTagTime = existTagList.get(0);	//only 1 will be there for user-tagName combination - no many will be there
+                    	
+                    	List<Tag> existTagOfTaskList = tagRepository.findTagByTagnameAndTaskId(tag.getTagname(), existingTaskToUpdate.getTaskId());
+                    	Tag exactTag = null;
+                    	if(!existTagOfTaskList.isEmpty()) {
+                    		exactTag = existTagOfTaskList.get(0);
+                    	}
+                    	
+                    	tag.setUseri(user.getUserId());
+                    	
+                    	//need not, but good, as tag is being updated by linking to new task
+                        
+                        //existTag.setTagUpdated(String.valueOf(new Date()));     //will get error, because models should have all variables have value while save method is called in 117
+                        tag.setTagUpdated(String.valueOf(new Date()));
+                        tag.setTagCreated(existTagForTagTime.getTagCreated());	// already user had a similar tag
+                        
+                        tag.setTaskObject(existingTaskToUpdate);
+                        
+                        //tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), user.getUserId());		//update tagUpdated in multiple taskid rows
+                        if (exactTag != null) {
+                        	tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), tag.getUseri());		//update tagUpdated in multiple taskid rows
+                        } else {
+                        	tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), tag.getUseri());	
+                        	tagRepository.save(tag);
+                        }
+                    }
+                }
+                existingTaskToUpdate.setTagList(tagList);
+            } */
+            
+            if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
+            	//checking
+            	List<Tag> tagList = newTask.getTagList();
+            	for (Tag tag : tagList) {
+            		if (tag.getTagname() == null || tag.getTagname().isEmpty()) {
+                		return generateResponse("{\"error\":\"Better have empty tagList rather than having a tag with no name\"}", HttpStatus.BAD_REQUEST);
+                	}
+				}            	
+            	
+            	Iterator<Tag> tagIterator = existingTaskToUpdate.getTagList().iterator();
+            	while(tagIterator.hasNext()){
+            		Tag tag = tagIterator.next();
+            		//remainderRepository.deleteByRemainderId(remainder.getRemainderId());
+            		tagRepository.delete(tag);
+            	}
+            	List<Tag> tagLists = newTask.getTagList();
+            	for (Tag tag : tagLists) {
+            		tag.setUseri(user.getUserId());
+            		//tag.setTaskObject(existingTaskToUpdate);
+            		
+            		tag.setTagCreated(String.valueOf(new Date()));
+            		tag.setTagUpdated(String.valueOf(new Date()));
+            		tagRepository.save(tag);
+            	}
+            	existingTaskToUpdate.setTagList(tagLists);
             }
             
             if( newTask.getRemainderList() != null  && !newTask.getRemainderList().isEmpty()) {
-            	Iterator<Remainder> remainderIterator = existingTask.getRemainderList().iterator();
+            	Iterator<Remainder> remainderIterator = existingTaskToUpdate.getRemainderList().iterator();
             	while(remainderIterator.hasNext()){
             		Remainder remainder = remainderIterator.next();
             		//remainderRepository.deleteByRemainderId(remainder.getRemainderId());
@@ -318,16 +405,21 @@ public class TaskServicceImpl implements TaskService {
             		remainder.setRemainderUpdated(String.valueOf(new Date()));
             		remainderRepository.save(remainder);
             	}
-            	existingTask.setRemainderList(remainderLists);
+            	existingTaskToUpdate.setRemainderList(remainderLists);
             }
             
             
             if( newTask.getCommentList() != null  && !newTask.getCommentList().isEmpty()) {
-            	Iterator<Comment> commentIterator = existingTask.getCommentList().iterator();
+            	Iterator<Comment> commentIterator = existingTaskToUpdate.getCommentList().iterator();
             	while(commentIterator.hasNext()){
             		Comment comment = commentIterator.next();
-            		//commentRepository.deleteByCommentId(comment.getCommentId());
+            		
+            		System.out.println("comment = "+comment.toString());
+            		
+            		//commentRepository.deleteById(null);
             		commentRepository.delete(comment);
+            		commentRepository.deleteByCommentId(comment.getCommentId());
+            		
             	}
             	List<Comment> commentLists = newTask.getCommentList();
             	for (Comment comment : commentLists) {
@@ -335,49 +427,12 @@ public class TaskServicceImpl implements TaskService {
             		comment.setCommentUpdated(String.valueOf(new Date()));
             		commentRepository.save(comment);
             	}
-            	existingTask.setCommentList(commentLists);
+            	existingTaskToUpdate.setCommentList(commentLists);
             }
             
-            if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
-            	
-            	List<Tag> tagList = newTask.getTagList();
-                for (Tag tag: tagList) {
-                    
-                	if (tag.getTagname() == null || tag.getTagname().isEmpty()) {
-                		return generateResponse("{\"error\":\"Better have empty tagList rather than having a tag with no name\"}", HttpStatus.BAD_REQUEST);
-                	}
-                    //if tag available use it, else new one
-                	List<Tag> existTagList = tagRepository.findTagByTagnameAndUserId(tag.getTagname(), user.getUserId());
-                	//Optional<Tag> existTagList = tagRepository.findById(new TagIdentity(user.getUserId(), tag.getTagname()));
-                	
-                	if( existTagList == null || existTagList.isEmpty()) {
-                        //create new tag
-                		tag.setUseri(user.getUserId());
-                		//tagName pre-exists
-                        
-                        tag.setTagCreated(String.valueOf(new Date()));
-                        tag.setTagUpdated(String.valueOf(new Date()));
-                        
-                        tagRepository.save(tag);
-                    } else {
-                    	//List<Tag> actualLists = existTagList.isPresent() ? Collections.singletonList(existTagList.get()) : Collections.emptyList();
-                    	Tag existTag = existTagList.get(0);	//only 1 will be there for user-tagName combination
-                    	
-                    	//need not, but good, as tag is being updated by linking to new task
-                        
-                        //existTag.setTagUpdated(String.valueOf(new Date()));     //will get error, because models should have all variables have value while save method is called in 117
-                        tag.setTagUpdated(String.valueOf(new Date()));
-                        tag.setTagCreated(existTag.getTagCreated());
-                        
-                        tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), user.getUserId());		//update tagUpdated in multiple taskid rows
-                    }
-                }
-                existingTask.setTagList(tagList);
-            }
+            existingTaskToUpdate.setAccountUpdated(String.valueOf(new Date()));
             
-            existingTask.setAccountUpdated(String.valueOf(new Date()));
-            
-            taskRepository.save(existingTask);
+            taskRepository.save(existingTaskToUpdate);
         
         } catch (Exception e){
             e.printStackTrace();

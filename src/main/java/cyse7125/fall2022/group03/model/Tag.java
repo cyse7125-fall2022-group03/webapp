@@ -1,12 +1,17 @@
 package cyse7125.fall2022.group03.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.alibaba.fastjson.annotation.JSONField;
 
 import lombok.Data;
 
@@ -35,14 +40,15 @@ public class Tag {
     
     //cant have task id as would not know while creating
     //so better is using foreign key concept, which auto populates
-    /*@ManyToOne
+    /*@JSONField(serialize = false)
+    @ManyToOne(targetEntity = Task.class, cascade = {CascadeType.PERSIST})
     @JoinColumns({
-        @JoinColumn(name = "task_id", referencedColumnName = "task_id"),
-        @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-        @JoinColumn(name = "list_id", referencedColumnName = "list_id")
+        @JoinColumn(name = "listId", referencedColumnName = "listId"),
+        @JoinColumn(name = "taskId", referencedColumnName = "taskId"),
+        @JoinColumn(name = "userId", referencedColumnName = "userId")
     })
-    private Task taskObject;*/
-    
+    private Task taskObject;
+    */
     
     public Tag() {
         super();
@@ -55,9 +61,20 @@ public class Tag {
         this.tagname = tagname;
         this.tagCreated = tagCreated;
         this.tagUpdated = tagUpdated;
+        //this.taskObject = taskObject;
     }
 
-    public String getUseri() {
+//    public Task getTaskObject() {
+//		return taskObject;
+//	}
+//
+//
+//	public void setTaskObject(Task taskObject) {
+//		this.taskObject = taskObject;
+//	}
+
+
+	public String getUseri() {
         return useri;
     }
 

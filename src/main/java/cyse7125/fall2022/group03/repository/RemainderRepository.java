@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import cyse7125.fall2022.group03.model.Remainder;
 
 @Repository
-public interface RemainderRepository extends JpaRepository<Remainder, Integer> {
+public interface RemainderRepository extends JpaRepository<Remainder, String> {
 
 	//void deleteByRemainderId(String remainderId);
 	

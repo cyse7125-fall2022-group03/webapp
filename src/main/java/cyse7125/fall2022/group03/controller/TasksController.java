@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -76,6 +77,26 @@ public class TasksController {
         }
         
         return taskService.createTask(newTask);
+    }
+    
+    @PutMapping("/task/update")
+    public ResponseEntity<JSONObject> updateTask(@RequestBody Task newTask) {
+    	
+
+        if (newTask == null) {
+            return generateResponse("{\"error\":\"Invalid request body\"}", HttpStatus.BAD_REQUEST);
+        }
+        // And other task variable validations - left
+        
+        if (newTask.getTaskId() == null) {
+            return generateResponse("{\"error\":\"Request must hold Task ID\"}", HttpStatus.BAD_REQUEST);
+        }
+        
+        if (newTask.getUserId() != null) {
+            return generateResponse("{\"error\":\"Request cant hold User ID - Not allowed to see others\"}", HttpStatus.BAD_REQUEST);
+        }
+    	
+    	return taskService.updateTask(newTask);
     }
     
     public ResponseEntity<JSONObject> generateResponse(Object messageObject, HttpStatus status) {

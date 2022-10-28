@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,10 +26,12 @@ public class Comment {
     
     private String comment;
     
-    @Column(name = "comment_created", updatable = false, nullable = false)
-    private String commentCreated;
-    @Column(name = "comment_updated", nullable = false)
-    private String commentUpdated;
+    //@Column(name = "comment_created", updatable = false, nullable = false)
+    @Column(name = "comment_created")
+    private String commentCreated = String.valueOf(new Date());
+    //@Column(name = "comment_updated", nullable = false)
+    @Column(name = "comment_updated")
+    private String commentUpdated = String.valueOf(new Date());
     
     public Comment() {
         super();

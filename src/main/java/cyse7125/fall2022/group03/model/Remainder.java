@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,10 +30,11 @@ public class Remainder {
     
     String dateTime;
     
-    @Column(name = "tag_created", updatable = false, nullable = false)
-    private String remainderCreated;
-    @Column(name = "tag_updated", nullable = false)
-    private String remainderUpdated;
+    //@Column(name = "remainder_created", updatable = false, nullable = false)
+    @Column(name = "remainder_created")
+    private String remainderCreated = String.valueOf(new Date());
+    @Column(name = "remainder_updated")
+    private String remainderUpdated = String.valueOf(new Date());
     public Remainder() {
         super();
     }

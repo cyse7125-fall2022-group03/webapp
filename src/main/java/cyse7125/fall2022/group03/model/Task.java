@@ -57,7 +57,9 @@ public class Task {
         TODO, OVERDUE, COMPLETE
     }
     
-    @OneToMany(targetEntity = Tag.class,cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    //biDirectional oneToMany ManyToOne, so that Tag can access Taskid fields in TagRepository query update
+    //@OneToMany(targetEntity = Tag.class,cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "taskObject")
+    @OneToMany(targetEntity = Tag.class,cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name = "listId"),
         @JoinColumn(name = "taskId"),

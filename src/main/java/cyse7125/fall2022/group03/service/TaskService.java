@@ -16,4 +16,8 @@ public interface TaskService {
     ResponseEntity<JSONObject> getATask(String listId, String taskId);
     Task getATask(String taskId);
 	ResponseEntity<JSONObject> updateTask(Task newTask);
+	ResponseEntity<JSONObject> deleteTask(String taskId);
+	//void deleteTasksOfList(String listId, String userID) throws Exception;
+	ResponseEntity<JSONObject> getAllTasksByTagName(String tagname); //self/{tagname}
+	ResponseEntity<JSONObject> changeTaskToNewList (Task newTask);
 }

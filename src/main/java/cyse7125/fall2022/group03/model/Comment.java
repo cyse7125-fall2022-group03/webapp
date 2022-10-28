@@ -9,6 +9,8 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Data;
 
 @Data
@@ -22,6 +24,7 @@ public class Comment {
     @Id
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id",length = 32)
+    @JSONField(serialize = false)
     private String commentId;
     
     private String comment;

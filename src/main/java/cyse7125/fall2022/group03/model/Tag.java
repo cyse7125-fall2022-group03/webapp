@@ -1,13 +1,9 @@
 package cyse7125.fall2022.group03.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,12 +18,14 @@ import lombok.Data;
 public class Tag {
     
     //@Id
+	@JSONField(serialize = false)
     @Column(name = "useri")
     private String useri;
     
     @Id
     @Column(name = "tagId")
     @GeneratedValue(generator = "jpa-uuid")
+    @JSONField(serialize = false)
     private String tagId;
     
     @Column(name = "tagname")

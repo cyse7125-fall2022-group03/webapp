@@ -13,4 +13,6 @@ public interface ListsService {
     ResponseEntity<JSONObject> createList(Lists lists);
     ResponseEntity<JSONObject> getAllLists();
     ResponseEntity<JSONObject> getAList(String id);
+    ResponseEntity<JSONObject> updateList(Lists lists);
+    ResponseEntity<JSONObject> deleteList(String listId);
 }

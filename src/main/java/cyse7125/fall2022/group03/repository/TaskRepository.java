@@ -21,8 +21,12 @@ public interface TaskRepository extends JpaRepository<Task, TaskIdentity> {
     @Query("Select task from Task task where task.taskId=?1 and task.userId=?2" )
     Task findTaskByTaskIdAndUserId(String taskId, String userId);
     
+    @Query("Select task from Task task where task.listId=?1 and task.userId=?2" )
+    List<Task> findTaskByListIdAndUserId(String listId, String userId);
+    
     @Modifying
     @Transactional
-    @Query("update Task task set task.listId = ?1 where task.taskId=?2 and task.userId=?3 and task.listId=?4")
-    void updateListId(String newListId, String tagname, String userId, String oldListID);
+    //@Query("update Task task set task.listId = ?1 where task.taskId=?2 and task.userId=?3 and task.listId=?4")
+    @Query("update Task task set task.listId = ?1 where task.taskId=?2 and task.userId=?3")
+    void updateListId(String newListId, String taskId, String userId);
 }

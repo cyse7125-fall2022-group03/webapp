@@ -15,8 +15,10 @@ import com.alibaba.fastjson.JSONObject;
 
 import cyse7125.fall2022.group03.model.Lists;
 import cyse7125.fall2022.group03.model.ListsIdentity;
+import cyse7125.fall2022.group03.model.Task;
 import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.repository.ListsRepository;
+import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.ListsService;
 
 @Service
@@ -27,6 +29,9 @@ public class ListsServiceImpl implements ListsService {
     
     @Autowired
     UserServiceImpl userServiceImpl; 
+    
+    @Autowired
+    TaskRepository taskRepository;
 
     @Override
     public ResponseEntity<JSONObject> createList(Lists newList) {
@@ -99,5 +104,70 @@ public class ListsServiceImpl implements ListsService {
         return new ResponseEntity<>(JSONObject.parseObject(messageString),status);
     }
 
+
+
+	@Override
+	public ResponseEntity<JSONObject> updateList(Lists  newLists) {
+		
+		try {
+			User user = userServiceImpl.getCurrentUser();
+			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(newLists.getListId(), user.getUserId());
+			
+			if( existingLists == null) {
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+			}
+			
+			existingLists.setName(newLists.getName());
+			existingLists.setAccountUpdated(String.valueOf(new Date()));
+			
+			listsRepository.save(existingLists);
+			
+		} catch (Exception e){
+			e.printStackTrace();
+        	return generateResponse(null, HttpStatus.BAD_REQUEST);
+		}
+    
+		return generateResponse("{\"success\":\"Update is done!\"}", HttpStatus.CREATED);
+	}
+
+
+
+	@Override
+	public ResponseEntity<JSONObject> deleteList(String listId) {
+		
+		try {
+			User user = userServiceImpl.getCurrentUser();
+			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(listId, user.getUserId());
+			
+			if( existingLists == null) {
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+			}
+        
+			listsRepository.delete(existingLists);
+        
+			//will delete corresponding tasks? no, have to do manually
+			deleteTasksOfList(listId, user.getUserId());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        	return generateResponse(null, HttpStatus.BAD_REQUEST);
+		}
+		
+		return generateResponse("{\"success\":\"List is deleted!\"}", HttpStatus.CREATED);
+	}
+	
+	
+	public void deleteTasksOfList(String listId, String userID) throws Exception {		
+		//assumed to call from list method after all lists are deleted for this user        
+        
+		List<Task> tasksOfList = taskRepository.findTaskByListIdAndUserId(listId, userID);
+		if( tasksOfList == null || tasksOfList.isEmpty()) {
+			return;
+        }
+		
+		for (Task task : tasksOfList) {
+			taskRepository.delete(task);
+		}
+	}
     
 }

@@ -31,4 +31,10 @@ public interface TagRepository extends JpaRepository<Tag, String> {
     
     //@Query("Select tag from Tag tag where tag.tagname=?1 and tag.useri=?2" )
     //Tag findTagByTagnameAndUserId(String tagname, String userId);
+    
+    @Modifying
+    @Transactional
+    @Query("update Tag tag set tag.tagUpdated = ?1 where tag.tagname=?2 and tag.useri=?3")
+    int updateAllTOnUpdate(String time, String tagname, String userId);
+    
 }

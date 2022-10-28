@@ -9,6 +9,8 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Data;
 
 @Data
@@ -22,6 +24,7 @@ public class Remainder {
     @Id
     @GeneratedValue(generator = "jpa-uuid")
     @Column(name = "id",length = 32)
+    @JSONField(serialize = false)
     private String remainderId;
     
     //@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

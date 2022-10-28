@@ -59,7 +59,7 @@ public class Task {
     
     //biDirectional oneToMany ManyToOne, so that Tag can access Taskid fields in TagRepository query update
     //@OneToMany(targetEntity = Tag.class,cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "taskObject")
-    @OneToMany(targetEntity = Tag.class,cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Tag.class,cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumns({
         @JoinColumn(name = "listId"),
         @JoinColumn(name = "taskId"),

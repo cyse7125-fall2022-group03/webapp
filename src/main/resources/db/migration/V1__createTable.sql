@@ -4,3 +4,7 @@ create table remainder (id varchar(32) not null, date_time varchar(255), remaind
 create table tag (tag_id varchar(255) not null, tag_created varchar(255) not null, tag_updated varchar(255) not null, tagname varchar(255), useri varchar(255), list_id varchar(255), task_id varchar(32), user_id varchar(255), primary key (tag_id)) engine=InnoDB;
 create table task (list_id varchar(255) not null, task_id varchar(32) not null, user_id varchar(255) not null, account_created varchar(255) not null, account_updated varchar(255) not null, due_date varchar(255), name varchar(255), priority varchar(255), status varchar(255), summary varchar(255), primary key (list_id, task_id, user_id)) engine=InnoDB;
 create table user (user_id varchar(32) not null, account_created varchar(255) not null, account_updated varchar(255) not null, email varchar(255), first_name varchar(255), last_name varchar(255), middle_name varchar(255), password varchar(255), primary key (user_id)) engine=InnoDB;
+alter table user add constraint UK_ob8kqyqqgmefl0aco34akdtpe unique (email);
+alter table comment add constraint FKds8to4t8gs62qldo0uwmr0ld7 foreign key (list_id, task_id, user_id) references task (list_id, task_id, user_id);
+alter table remainder add constraint FK5vabuqyonrnjdcs9b3aff4dbc foreign key (list_id, task_id, user_id) references task (list_id, task_id, user_id);
+alter table tag add constraint FK6sl0u56m1ebnxbjhvuh43695i foreign key (list_id, task_id, user_id) references task (list_id, task_id, user_id);

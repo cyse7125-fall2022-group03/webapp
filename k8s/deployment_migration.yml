@@ -1,0 +1,113 @@
+# secrets with RDS username and password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+data:
+  DB_USERNAME: cm9vdA==
+  DB_PASSWORD: cm9vdDEyMzQ1
+
+# Configuration for RDS
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: team3-configmap
+data:
+  DB_DATABASE: todo
+  DB_HOST: "terraform-20221029015057981500000001.crv2qyiznaaf.us-east-1.rds.amazonaws.com"
+  DB_PORT: "3306"
+
+#Loadbalancer Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: csye7125-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: team3-csye7125
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080
+
+#Deployment with containers    
+---
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: team3-csye7125
+spec:
+  selector:
+    matchLabels:
+      app: team3-csye7125
+  replicas: 3 # No of replicas
+  progressDeadlineSeconds: 300
+  minReadySeconds: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: team3-csye7125
+        #label: test-01 #to test rolling update
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      #init container for flyway
+      initContainers:
+        - name: schema-migration
+          image: csye7125fall2022group03/dockrepo:dbmigrationimage15
+          env:
+          - name: FLYWAY_URL
+            value: "jdbc:mysql://terraform-20221029015057981500000001.crv2qyiznaaf.us-east-1.rds.amazonaws.com:3306/todo"
+          - name: FLYWAY_USER
+            valueFrom: 
+              secretKeyRef:
+                name: db-secret
+                key: DB_USERNAME
+          - name: FLYWAY_PASSWORD
+            valueFrom: 
+              secretKeyRef:
+                name: db-secret
+                key: DB_PASSWORD 
+          command: ["flyway", "migrate"]
+      #container with web application          
+      containers:
+        - name: team3-csye7125
+          image: csye7125fall2022group03/dockrepo:myfirsttodowebapp14
+          env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_PASSWORD
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_USERNAME              
+          envFrom:
+              - configMapRef:
+                  name: team3-configmap             
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080 
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 40
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20        

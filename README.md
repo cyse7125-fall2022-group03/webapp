@@ -153,6 +153,40 @@ docker run --name mysql-container9 -e MYSQL_ROOT_PASSWORD=password123 -e MYSQL_D
 
 
 
+### Docker private pull image
+
+Create a secret regcred with docker private repository credentials
+
+```
+kubectl create secret docker-registry regcred --docker-username=username --docker-password=vanShi@2615 --docker-email=kule.k@northeastern.edu --docker-server=https://index.docker.io/v1/
+```
+
+### Create deployment 
+
+Run the deployment_migration.yml file with the following command
+
+```
+kubectl apply -f deployment_migration.yml
+```
+### Port forwarding
+
+Replace "service-name" with the name of the service created 
+
+```
+kubectl port-forward service/service-name 8080:8080
+```
+
+### Deployment status
+
+```
+kubectl get all
+kubectl logs resource-name > logs.txt
+kubectl describe resource-name
+kubectl logs -f resource-name  -c container-name
+```
+
+
+
 
 
 

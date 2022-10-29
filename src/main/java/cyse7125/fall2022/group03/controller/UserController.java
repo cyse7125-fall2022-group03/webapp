@@ -40,6 +40,10 @@ public class UserController {
         return userService.updateEmail(request);
     }
 	
+    @PutMapping("/user/update")
+	public ResponseEntity<JSONObject> updateUser(@RequestBody User newUserValues) {
+    	return userService.updateUser(newUserValues);
+    }
 	
 
 }

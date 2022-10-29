@@ -14,4 +14,5 @@ public interface UserService {
     ResponseEntity<JSONObject> createUser(User user);
     ResponseEntity<JSONObject> getUserDetails();
     ResponseEntity<JSONObject> updateEmail(Map<String, String> request);
+    ResponseEntity<JSONObject> updateUser(User newUserValues);
 }

@@ -46,7 +46,7 @@ spec:
       app: team3-csye7125
   replicas: 3 # No of replicas
   progressDeadlineSeconds: 300
-  minReadySeconds: 5
+  minReadySeconds: 30
   strategy:
     rollingUpdate:
       maxSurge: 1

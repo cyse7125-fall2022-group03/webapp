@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,8 +76,8 @@ public class TasksController {
 			return generateResponse("{\"error\":\"Request cant hold Task ID\"}", HttpStatus.BAD_REQUEST);
 		}
 
-		if (newTask.getListId() == null) {
-			return generateResponse("{\"error\":\"Request must specify a list ID\"}", HttpStatus.BAD_REQUEST);
+		if (newTask.getListId() == null || newTask.getDueDate()==null) {
+			return generateResponse("{\"error\":\"Request must specify a list ID and Due date\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		if (newTask.getUserId() != null) {
@@ -89,6 +91,13 @@ public class TasksController {
 
 		if (newTask.getStatus() != null) {
 			return generateResponse("{\"error\":\"Request cant hold Status value in create\"}", HttpStatus.BAD_REQUEST);
+		}
+		
+		if (newTask.getDueDate() != null && !newTask.getDueDate().isAfter(LocalDateTime.now())) {
+			return generateResponse("{\"error\":\"Request can hold due dates future from now only\"}", HttpStatus.BAD_REQUEST);
+		}
+		if (newTask.getPriority() != null && !(newTask.getPriority()==Task.Priority.high || newTask.getPriority()==Task.Priority.medium || newTask.getPriority()==Task.Priority.low)) {
+			return generateResponse("{\"error\":\"Request can hold priority either high/low/medium\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		return taskService.createTask(newTask);
@@ -109,6 +118,13 @@ public class TasksController {
 
 		if (newTask.getUserId() != null) {
 			return generateResponse("{\"error\":\"Request cant hold User ID - Not allowed to see others\"}", HttpStatus.BAD_REQUEST);
+		}
+		
+		if (newTask.getStatus() != null && !(newTask.getStatus()==Task.Status.TODO || newTask.getStatus()==Task.Status.OVERDUE || newTask.getStatus()==Task.Status.COMPLETE)) {
+			return generateResponse("{\"error\":\"Request can hold status either TODO/COMPLETE/OVERDUE\"}", HttpStatus.BAD_REQUEST);
+		}
+		if (newTask.getPriority() != null && !(newTask.getPriority()==Task.Priority.high || newTask.getPriority()==Task.Priority.medium || newTask.getPriority()==Task.Priority.low)) {
+			return generateResponse("{\"error\":\"Request can hold priority either high/low/medium\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		return taskService.updateTask(newTask);

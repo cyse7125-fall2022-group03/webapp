@@ -1,7 +1,7 @@
 package cyse7125.fall2022.group03.service.Impl;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +40,7 @@ public class ListsServiceImpl implements ListsService {
 
 			User user = userServiceImpl.getCurrentUser();
 
-			Lists listToPut = new Lists(user.getUserId(), newList.getName(), String.valueOf(new Date()), String.valueOf(new Date()));
+			Lists listToPut = new Lists(user.getUserId(), newList.getName(), LocalDateTime.now(), LocalDateTime.now());
 
 			newList = listsRepository.save(listToPut);
 
@@ -63,11 +63,11 @@ public class ListsServiceImpl implements ListsService {
 			List<Lists> listOfLists = listsRepository.findByUserId(user.getUserId());
 
 			if( listOfLists == null || listOfLists.isEmpty()) {
-				return generateResponse("{\"error\":\"You dont have any list\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have any list\"}", HttpStatus.NOT_FOUND);
 			}
 
 
-			return generateResponse(listOfLists, HttpStatus.CREATED);
+			return generateResponse(listOfLists, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -83,13 +83,13 @@ public class ListsServiceImpl implements ListsService {
 			Optional<Lists> list = listsRepository.findById(new ListsIdentity(user.getUserId(), id));
 
 			if( list == null || list.isEmpty()) {
-				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
 			List<Lists> actualLists = list.isPresent() ? Collections.singletonList(list.get()) : Collections.emptyList();
 
 			System.out.println(actualLists.toString());
-			return generateResponse(actualLists, HttpStatus.CREATED);
+			return generateResponse(actualLists, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -126,11 +126,11 @@ public class ListsServiceImpl implements ListsService {
 			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(newLists.getListId(), user.getUserId());
 
 			if( existingLists == null) {
-				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
 			existingLists.setName(newLists.getName());
-			existingLists.setAccountUpdated(String.valueOf(new Date()));
+			existingLists.setAccountUpdated(LocalDateTime.now());
 
 			listsRepository.save(existingLists);
 
@@ -139,7 +139,7 @@ public class ListsServiceImpl implements ListsService {
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		return generateResponse("{\"success\":\"Update is done!\"}", HttpStatus.CREATED);
+		return generateResponse("{\"success\":\"Update is done!\"}", HttpStatus.OK);
 	}
 
 
@@ -152,7 +152,7 @@ public class ListsServiceImpl implements ListsService {
 			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(listId, user.getUserId());
 
 			if( existingLists == null) {
-				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
 			listsRepository.delete(existingLists);
@@ -165,7 +165,7 @@ public class ListsServiceImpl implements ListsService {
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		return generateResponse("{\"success\":\"List is deleted!\"}", HttpStatus.CREATED);
+		return generateResponse("{\"success\":\"List is deleted!\"}", HttpStatus.OK);
 	}
 
 

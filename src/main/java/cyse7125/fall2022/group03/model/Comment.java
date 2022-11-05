@@ -1,6 +1,6 @@
 package cyse7125.fall2022.group03.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,16 +31,16 @@ public class Comment {
     
     //@Column(name = "comment_created", updatable = false, nullable = false)
     @Column(name = "comment_created")
-    private String commentCreated = String.valueOf(new Date());
+    private LocalDateTime commentCreated = LocalDateTime.now();
     //@Column(name = "comment_updated", nullable = false)
     @Column(name = "comment_updated")
-    private String commentUpdated = String.valueOf(new Date());
+    private LocalDateTime commentUpdated = LocalDateTime.now();
     
     public Comment() {
         super();
     }
     //public Comment(String taskId, String comment, String commentCreated, String commentUpdated) {
-    public Comment(String comment, String commentCreated, String commentUpdated) {
+    public Comment(String comment, LocalDateTime commentCreated, LocalDateTime commentUpdated) {
         super();
         //this.taskId = taskId;
         this.comment = comment;
@@ -65,16 +65,16 @@ public class Comment {
     public void setComment(String comment) {
         this.comment = comment;
     }
-    public String getCommentCreated() {
+    public LocalDateTime getCommentCreated() {
         return commentCreated;
     }
-    public void setCommentCreated(String commentCreated) {
+    public void setCommentCreated(LocalDateTime commentCreated) {
         this.commentCreated = commentCreated;
     }
-    public String getCommentUpdated() {
+    public LocalDateTime getCommentUpdated() {
         return commentUpdated;
     }
-    public void setCommentUpdated(String commentUpdated) {
+    public void setCommentUpdated(LocalDateTime commentUpdated) {
         this.commentUpdated = commentUpdated;
     }
     

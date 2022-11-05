@@ -2,6 +2,7 @@ package cyse7125.fall2022.group03.model;
 
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -39,11 +40,11 @@ public class Task {
     
     private String summary;
     private String name;
-    private String dueDate;
+    private LocalDateTime dueDate;
     @Column(name = "account_created", updatable = false, nullable = false)
-    private String accountCreated;
+    private LocalDateTime accountCreated;
     @Column(name = "account_updated", nullable = false)
-    private String accountUpdated;
+    private LocalDateTime accountUpdated;
     
     @Enumerated(EnumType.STRING)
     private Priority priority;
@@ -89,8 +90,8 @@ public class Task {
     }
 
 
-	public Task(String userId, String listId, String summary, String name, String dueDate, String accountCreated,
-			String accountUpdated, Priority priority, Status status, List<Tag> tagList, List<Comment> commentList,
+	public Task(String userId, String listId, String summary, String name, LocalDateTime dueDate, LocalDateTime accountCreated,
+			LocalDateTime accountUpdated, Priority priority, Status status, List<Tag> tagList, List<Comment> commentList,
 			List<Remainder> remainderList) {
 		super();
 		this.userId = userId;
@@ -158,32 +159,32 @@ public class Task {
 	}
 
 
-	public String getDueDate() {
+	public LocalDateTime getDueDate() {
 		return dueDate;
 	}
 
-
-	public void setDueDate(String dueDate) {
+	public void setDueDate(LocalDateTime dueDate) {
+		
 		this.dueDate = dueDate;
 	}
 
 
-	public String getAccountCreated() {
+	public LocalDateTime getAccountCreated() {
 		return accountCreated;
 	}
 
 
-	public void setAccountCreated(String accountCreated) {
+	public void setAccountCreated(LocalDateTime accountCreated) {
 		this.accountCreated = accountCreated;
 	}
 
 
-	public String getAccountUpdated() {
+	public LocalDateTime getAccountUpdated() {
 		return accountUpdated;
 	}
 
 
-	public void setAccountUpdated(String accountUpdated) {
+	public void setAccountUpdated(LocalDateTime accountUpdated) {
 		this.accountUpdated = accountUpdated;
 	}
 

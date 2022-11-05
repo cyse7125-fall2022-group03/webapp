@@ -1,6 +1,6 @@
 package cyse7125.fall2022.group03.service.Impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -41,8 +41,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public ResponseEntity<JSONObject> createUser(User user) {
 
-		user.setAccountCreated(String.valueOf(new Date()));
-		user.setAccountUpdated(String.valueOf(new Date()));
+		user.setAccountCreated(LocalDateTime.now());
+		user.setAccountUpdated(LocalDateTime.now());
 
 		if (!checkEmailFormat(user.getEmail())){
 			return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
 			userRepository.save(user);
 
 			//Lists newList = new Lists(new ListsIdentity(user.getId()), "List1", String.valueOf(new Date()), String.valueOf(new Date()));
-			Lists newList = new Lists(user.getUserId(),"List1", String.valueOf(new Date()), String.valueOf(new Date()));
+			Lists newList = new Lists(user.getUserId(),"List1", LocalDateTime.now(), LocalDateTime.now());
 
 			listsRepository.save(newList);
 
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 				return result;
 			}
 			//password to be removed from json
-			return generateResponse(user, HttpStatus.FOUND);
+			return generateResponse(user, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -187,6 +187,9 @@ public class UserServiceImpl implements UserService {
 			if (newEmail == null) {
 				return generateResponse("{\"error\":\"Please enter a valid value to key email\"}", HttpStatus.BAD_REQUEST);
 			}
+			if (!checkEmailFormat(newEmail)){
+				return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
+			}
 
 			User testUser = userRepository.findByEmail(newEmail);
 			if (testUser != null) {
@@ -194,10 +197,11 @@ public class UserServiceImpl implements UserService {
 			}
 
 			user.setEmail(newEmail);
+			user.setAccountUpdated(LocalDateTime.now());
 
 			userRepository.save(user);
 
-			return generateResponse(user, HttpStatus.ACCEPTED);
+			return generateResponse(user, HttpStatus.OK);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -236,7 +240,7 @@ public class UserServiceImpl implements UserService {
 
 			userRepository.save(user);
 
-			return generateResponse(user, HttpStatus.ACCEPTED);
+			return generateResponse(user, HttpStatus.OK);
 
 		} catch (Exception e) {
 			e.printStackTrace();

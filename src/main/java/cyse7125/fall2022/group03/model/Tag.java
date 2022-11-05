@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,9 +34,9 @@ public class Tag {
     private String tagname;
     
     @Column(name = "tag_created", updatable = false, nullable = false)
-    private String tagCreated;
+    private LocalDateTime tagCreated;
     @Column(name = "tag_updated", nullable = false)
-    private String tagUpdated;
+    private LocalDateTime tagUpdated;
     
     //cant have task id as would not know while creating
     //so better is using foreign key concept, which auto populates
@@ -53,7 +55,7 @@ public class Tag {
     }
 
 
-    public Tag(String useri, String tagname, String tagCreated, String tagUpdated) {
+    public Tag(String useri, String tagname, LocalDateTime tagCreated, LocalDateTime tagUpdated) {
         super();
         this.useri = useri;
         this.tagname = tagname;
@@ -90,22 +92,22 @@ public class Tag {
     }
 
 
-    public String getTagCreated() {
+    public LocalDateTime getTagCreated() {
         return tagCreated;
     }
 
 
-    public void setTagCreated(String tagCreated) {
+    public void setTagCreated(LocalDateTime tagCreated) {
         this.tagCreated = tagCreated;
     }
 
 
-    public String getTagUpdated() {
+    public LocalDateTime getTagUpdated() {
         return tagUpdated;
     }
 
 
-    public void setTagUpdated(String tagUpdated) {
+    public void setTagUpdated(LocalDateTime tagUpdated) {
         this.tagUpdated = tagUpdated;
     }
 

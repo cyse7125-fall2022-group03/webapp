@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,15 +29,15 @@ public class Lists {
     private String name;
     
     @Column(name = "account_created", updatable = false, nullable = false)
-    private String accountCreated;
+    private LocalDateTime accountCreated;
     @Column(name = "account_updated", nullable = false)
-    private String accountUpdated;
+    private LocalDateTime accountUpdated;
     
     public Lists() {
         
     }
 
-    public Lists(String userId, String name, String accountCreated, String accountUpdated) {
+    public Lists(String userId, String name, LocalDateTime accountCreated, LocalDateTime accountUpdated) {
         super();
         this.userId = userId;
         this.name = name;
@@ -44,7 +46,7 @@ public class Lists {
     }
     
 
-    public Lists(String userId, String accountCreated, String accountUpdated) {
+    public Lists(String userId, LocalDateTime accountCreated, LocalDateTime accountUpdated) {
         super();
         this.userId = userId;
         this.accountCreated = accountCreated;
@@ -75,19 +77,19 @@ public class Lists {
         this.name = name;
     }
 
-    public String getAccountCreated() {
+    public LocalDateTime getAccountCreated() {
         return accountCreated;
     }
 
-    public void setAccountCreated(String accountCreated) {
+    public void setAccountCreated(LocalDateTime accountCreated) {
         this.accountCreated = accountCreated;
     }
 
-    public String getAccountUpdated() {
+    public LocalDateTime getAccountUpdated() {
         return accountUpdated;
     }
 
-    public void setAccountUpdated(String accountUpdated) {
+    public void setAccountUpdated(LocalDateTime accountUpdated) {
         this.accountUpdated = accountUpdated;
     }
 

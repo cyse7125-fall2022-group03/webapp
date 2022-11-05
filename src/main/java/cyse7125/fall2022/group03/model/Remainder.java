@@ -1,6 +1,6 @@
 package cyse7125.fall2022.group03.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,18 +31,18 @@ public class Remainder {
     //@JsonSerialize(using = LocalDateTimeSerializer.class)
     //@JsonDeserialize(using = LocalDateTimeDeserializer.class)
     
-    String dateTime;
+    LocalDateTime dateTime = LocalDateTime.now();
     
     //@Column(name = "remainder_created", updatable = false, nullable = false)
     @Column(name = "remainder_created")
-    private String remainderCreated = String.valueOf(new Date());
+    private LocalDateTime remainderCreated = LocalDateTime.now();
     @Column(name = "remainder_updated")
-    private String remainderUpdated = String.valueOf(new Date());
+    private LocalDateTime remainderUpdated = LocalDateTime.now();
     public Remainder() {
         super();
     }
     //public Remainder(String taskId, LocalDateTime dateTime, String remainderCreated, String remainderUpdated) {
-    public Remainder(String dateTime, String remainderCreated, String remainderUpdated) {
+    public Remainder(LocalDateTime dateTime, LocalDateTime remainderCreated, LocalDateTime remainderUpdated) {
         super();
         //this.taskId = taskId;
         this.dateTime = dateTime;
@@ -61,22 +61,22 @@ public class Remainder {
     public void setRemainderId(String remainderId) {
         this.remainderId = remainderId;
     }
-    public String getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
-    public void setDateTime(String dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
-    public String getRemainderCreated() {
+    public LocalDateTime getRemainderCreated() {
         return remainderCreated;
     }
-    public void setRemainderCreated(String remainderCreated) {
+    public void setRemainderCreated(LocalDateTime remainderCreated) {
         this.remainderCreated = remainderCreated;
     }
-    public String getRemainderUpdated() {
+    public LocalDateTime getRemainderUpdated() {
         return remainderUpdated;
     }
-    public void setRemainderUpdated(String remainderUpdated) {
+    public void setRemainderUpdated(LocalDateTime remainderUpdated) {
         this.remainderUpdated = remainderUpdated;
     }
     

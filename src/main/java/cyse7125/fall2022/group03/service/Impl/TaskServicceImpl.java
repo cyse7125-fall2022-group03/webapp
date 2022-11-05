@@ -1,5 +1,6 @@
 package cyse7125.fall2022.group03.service.Impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -61,15 +62,15 @@ public class TaskServicceImpl implements TaskService {
 			//is the newlist of same user
 			result = listsServiceImpl.getAList(newTask.getListId());
 
-			if (result.getStatusCode() == HttpStatus.BAD_REQUEST) {
+			if (result.getStatusCode() != HttpStatus.OK) {
 				return result;
 			}
 
 			newTask.setUserId(user.getUserId());
 			//newTask.setListId(newTask.getListId());
 
-			newTask.setAccountCreated(String.valueOf(new Date()));
-			newTask.setAccountUpdated(String.valueOf(new Date()));
+			newTask.setAccountCreated(LocalDateTime.now());
+			newTask.setAccountUpdated(LocalDateTime.now());
 
 			newTask.setStatus(Task.Status.TODO);
 
@@ -110,8 +111,8 @@ public class TaskServicceImpl implements TaskService {
 						tag.setUseri(user.getUserId());
 						//tagName pre-exists
 
-						tag.setTagCreated(String.valueOf(new Date()));
-						tag.setTagUpdated(String.valueOf(new Date()));
+						tag.setTagCreated(LocalDateTime.now());
+						tag.setTagUpdated(LocalDateTime.now());
 
 						//tag.setTaskObject(newTask); //?
 
@@ -124,7 +125,7 @@ public class TaskServicceImpl implements TaskService {
 						//need not, but good, as tag is being updated by linking to new task
 
 						//existTag.setTagUpdated(String.valueOf(new Date()));     //will get error, because models should have all variables have value while save method is called in 117
-						tag.setTagUpdated(String.valueOf(new Date()));
+						tag.setTagUpdated(LocalDateTime.now());
 						tag.setTagCreated(existTag.getTagCreated());
 
 						//tag.setTaskObject(newTask);
@@ -142,8 +143,8 @@ public class TaskServicceImpl implements TaskService {
 				List<Comment> commentList = newTask.getCommentList();
 				for (Comment comment : commentList) {
 
-					comment.setCommentCreated(String.valueOf(new Date()));
-					comment.setCommentUpdated(String.valueOf(new Date()));
+					comment.setCommentCreated(LocalDateTime.now());
+					comment.setCommentUpdated(LocalDateTime.now());
 
 					commentRepository.save(comment);
 				}
@@ -160,8 +161,8 @@ public class TaskServicceImpl implements TaskService {
 
 					remainder.setDateTime(remainder.getDateTime());
 
-					remainder.setRemainderCreated(String.valueOf(new Date()));
-					remainder.setRemainderUpdated(String.valueOf(new Date()));
+					remainder.setRemainderCreated(LocalDateTime.now());
+					remainder.setRemainderUpdated(LocalDateTime.now());
 
 					remainderRepository.save(remainder);
 				}
@@ -188,7 +189,7 @@ public class TaskServicceImpl implements TaskService {
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
-				return generateResponse("{\"error\":\"You have no tasks, start creating\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
 			// List<Task> actualListOfTasks = listOfTasks.isPresent() ? Collections.singletonList(listOfTasks.get()) : Collections.emptyList();
@@ -199,10 +200,10 @@ public class TaskServicceImpl implements TaskService {
 				}
 			}
 			if (finalListOfTasks.isEmpty()) {
-				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
-			return generateResponse(finalListOfTasks, HttpStatus.CREATED);
+			return generateResponse(finalListOfTasks, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -218,10 +219,10 @@ public class TaskServicceImpl implements TaskService {
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
-				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.CREATED);
+				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
-			return generateResponse(listOfTasks, HttpStatus.CREATED);
+			return generateResponse(listOfTasks, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -236,13 +237,13 @@ public class TaskServicceImpl implements TaskService {
 			Optional<Task> task = taskRepository.findById(new TaskIdentity(user.getUserId(), listId, taskId));
 
 			if( task == null || task.isEmpty()) {
-				return generateResponse("{\"error\":\"You have no tasks or You dont have such a list/task\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You have no tasks or You dont have such a list/task\"}", HttpStatus.NOT_FOUND);
 			}
 
 			List<Task> actualLists = task.isPresent() ? Collections.singletonList(task.get()) : Collections.emptyList();
 
 			System.out.println(actualLists.toString());
-			return generateResponse(actualLists, HttpStatus.CREATED);
+			return generateResponse(actualLists, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -291,7 +292,7 @@ public class TaskServicceImpl implements TaskService {
 
 
 			if (existingTaskToUpdate == null) {
-				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}
 
 			if (newTask.getAccountCreated() != null) {
@@ -354,10 +355,15 @@ public class TaskServicceImpl implements TaskService {
 			if (newTask.getDueDate() != null && !newTask.getDueDate().equals(existingTaskToUpdate.getDueDate())) {            	
 
 				existingTaskToUpdate.setDueDate(newTask.getDueDate());
-
-				if (existingTaskToUpdate.getStatus() == Task.Status.OVERDUE) {
+				if (existingTaskToUpdate.getStatus() == Task.Status.OVERDUE &&
+						existingTaskToUpdate.getDueDate().isAfter(LocalDateTime.now())) {
 					existingTaskToUpdate.setStatus(Task.Status.TODO);
 				}
+				if (existingTaskToUpdate.getDueDate().isBefore(LocalDateTime.now()) && existingTaskToUpdate.getStatus()!=Task.Status.COMPLETE) {
+					existingTaskToUpdate.setStatus(Task.Status.OVERDUE);
+				}
+
+				
 			}
 
 			if (newTask.getSummary() != null) {
@@ -367,7 +373,20 @@ public class TaskServicceImpl implements TaskService {
 				existingTaskToUpdate.setName(newTask.getName());
 			}
 			if (newTask.getStatus() != null) {
-				existingTaskToUpdate.setStatus(newTask.getStatus());
+				if (newTask.getStatus() != Task.Status.OVERDUE) {
+					if (existingTaskToUpdate.getDueDate().isBefore(LocalDateTime.now())) {
+						return generateResponse("{\"error\":\"Cannot update status other than overdue when having due date passed\"}", HttpStatus.BAD_REQUEST);
+					}else {
+						existingTaskToUpdate.setStatus(newTask.getStatus());
+					}
+				} else {
+					if (existingTaskToUpdate.getDueDate().isAfter(LocalDateTime.now())) {
+						return generateResponse("{\"error\":\"Cannot update status to overdue when having due date in future\"}", HttpStatus.BAD_REQUEST);
+					}else {
+						existingTaskToUpdate.setStatus(newTask.getStatus());
+					}
+				}
+				
 			}
 			if (newTask.getPriority() != null) {
 				existingTaskToUpdate.setPriority(newTask.getPriority());
@@ -431,7 +450,7 @@ public class TaskServicceImpl implements TaskService {
 
 			if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
 
-				Map<String, String> oldMapping = new HashMap<String,String>();
+				Map<String, LocalDateTime> oldMapping = new HashMap<String,LocalDateTime>();
 
 				Iterator<Tag> tagIterator = existingTaskToUpdate.getTagList().iterator();
 				while(tagIterator.hasNext()){
@@ -456,23 +475,23 @@ public class TaskServicceImpl implements TaskService {
 						tag.setTagCreated(oldMapping.get(tag.getTagname()));
 						toUpdate = true;
 					} else {
-						tag.setTagCreated(String.valueOf(new Date()));
+						tag.setTagCreated(LocalDateTime.now());
 					}
 
-					tag.setTagUpdated(String.valueOf(new Date()));
+					tag.setTagUpdated(LocalDateTime.now());
 
 					tagRepository.save(tag);
 
 					//after saving, updating for all tasks of that tagname of user
 					if (toUpdate) {
-						tagRepository.updateAllTOnUpdate(String.valueOf(new Date()), tag.getTagname(), user.getUserId());
+						tagRepository.updateAllTOnUpdate(LocalDateTime.now(), tag.getTagname(), user.getUserId());
 					}
 				}
 				existingTaskToUpdate.setTagList(tagLists);
 			}
 
 			if( newTask.getRemainderList() != null  && !newTask.getRemainderList().isEmpty()) {
-				Map<String, String> oldMapping = new HashMap<String,String>();
+				Map<LocalDateTime, LocalDateTime> oldMapping = new HashMap<LocalDateTime,LocalDateTime>();
 
 				Iterator<Remainder> remainderIterator = existingTaskToUpdate.getRemainderList().iterator();
 				while(remainderIterator.hasNext()){
@@ -489,10 +508,10 @@ public class TaskServicceImpl implements TaskService {
 					if (oldMapping.containsKey(remainder.getDateTime())) {
 						remainder.setRemainderCreated(oldMapping.get(remainder.getDateTime()));
 					} else {
-						remainder.setRemainderCreated(String.valueOf(new Date()));
+						remainder.setRemainderCreated(LocalDateTime.now());
 					}
 
-					remainder.setRemainderUpdated(String.valueOf(new Date()));
+					remainder.setRemainderUpdated(LocalDateTime.now());
 					remainderRepository.save(remainder);
 				}
 				existingTaskToUpdate.setRemainderList(remainderLists);
@@ -500,7 +519,7 @@ public class TaskServicceImpl implements TaskService {
 
 
 			if( newTask.getCommentList() != null  && !newTask.getCommentList().isEmpty()) {
-				Map<String, String> oldMapping = new HashMap<String,String>();
+				Map<String, LocalDateTime> oldMapping = new HashMap<String,LocalDateTime>();
 
 				Iterator<Comment> commentIterator = existingTaskToUpdate.getCommentList().iterator();
 				while(commentIterator.hasNext()){
@@ -519,17 +538,17 @@ public class TaskServicceImpl implements TaskService {
 					if (oldMapping.containsKey(comment.getComment())) {
 						comment.setCommentCreated(oldMapping.get(comment.getComment()));
 					} else {
-						comment.setCommentCreated(String.valueOf(new Date()));
+						comment.setCommentCreated(LocalDateTime.now());
 					}
 
-					comment.setCommentUpdated(String.valueOf(new Date()));
+					comment.setCommentUpdated(LocalDateTime.now());
 
 					commentRepository.save(comment);
 				}
 				existingTaskToUpdate.setCommentList(commentLists);
 			}
 
-			existingTaskToUpdate.setAccountUpdated(String.valueOf(new Date()));
+			existingTaskToUpdate.setAccountUpdated(LocalDateTime.now());
 
 			taskRepository.save(existingTaskToUpdate);
 
@@ -538,7 +557,7 @@ public class TaskServicceImpl implements TaskService {
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		return generateResponse("{\"success\":\"Update is done!\"}", HttpStatus.CREATED);
+		return generateResponse("{\"success\":\"Update is done!\"}", HttpStatus.OK);
 	}
 
 	@Override
@@ -549,7 +568,7 @@ public class TaskServicceImpl implements TaskService {
 			Task existingTaskToDelete = taskRepository.findTaskByTaskIdAndUserId(taskId, user.getUserId());
 
 			if (existingTaskToDelete == null) {
-				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}		
 
 			taskRepository.delete(existingTaskToDelete);
@@ -559,7 +578,7 @@ public class TaskServicceImpl implements TaskService {
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		return generateResponse("{\"success\":\"Task is deleted!\"}", HttpStatus.CREATED);
+		return generateResponse("{\"success\":\"Task is deleted!\"}", HttpStatus.OK);
 	}
 
 
@@ -572,7 +591,7 @@ public class TaskServicceImpl implements TaskService {
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
-				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.CREATED);
+				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
 			List<Task> listOfTasksByTagName = new ArrayList<Task>();
@@ -589,10 +608,10 @@ public class TaskServicceImpl implements TaskService {
 			}
 
 			if (listOfTasksByTagName.isEmpty()) {
-				return generateResponse("{\"success\":\"You have no tasks with that tagname, start creating\"}", HttpStatus.CREATED);
+				return generateResponse("{\"success\":\"You have no tasks with that tagname, start creating\"}", HttpStatus.OK);
 			}
 
-			return generateResponse(listOfTasksByTagName, HttpStatus.CREATED);
+			return generateResponse(listOfTasksByTagName, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -608,7 +627,7 @@ public class TaskServicceImpl implements TaskService {
 
 
 			if (existingTaskToUpdate == null) {
-				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}
 
 			if (newTask.getListId() == null) {
@@ -616,14 +635,14 @@ public class TaskServicceImpl implements TaskService {
 			}
 
 			if (existingTaskToUpdate.getListId() == newTask.getListId()) {
-				return generateResponse("{\"success\":\"Both are same lists- nothing to update\"}", HttpStatus.BAD_REQUEST);
+				return generateResponse("{\"success\":\"Both are same lists- nothing to update\"}", HttpStatus.OK);
 			}
 
 			// moving to other list
 
 			//is the newlist of same user
 			ResponseEntity<JSONObject> result = listsServiceImpl.getAList(newTask.getListId());
-			if (result.getStatusCode() == HttpStatus.BAD_REQUEST) {
+			if (result.getStatusCode() != HttpStatus.OK) {
 				return result;
 			}
 
@@ -651,7 +670,7 @@ public class TaskServicceImpl implements TaskService {
 			//existingTaskToUpdate = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
 
 
-			return generateResponse(newTask, HttpStatus.CREATED);
+			return generateResponse(newTask, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);

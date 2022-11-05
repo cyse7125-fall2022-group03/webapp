@@ -1,5 +1,6 @@
 package cyse7125.fall2022.group03.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -27,7 +28,7 @@ public interface TagRepository extends JpaRepository<Tag, String> {
     @Transactional
     //@Query("update Tag tag set tag.tagUpdated = ?1 where tag.tagname=?2 and tag.userId=?3")
     @Query("update Tag tag set tag.tagUpdated = ?1 where tag.tagname=?2 and tag.useri=?3")
-    int updateTagUpdated(String time, String tagname, String userId);
+    int updateTagUpdated(LocalDateTime time, String tagname, String userId);
     
     //@Query("Select tag from Tag tag where tag.tagname=?1 and tag.useri=?2" )
     //Tag findTagByTagnameAndUserId(String tagname, String userId);
@@ -35,6 +36,6 @@ public interface TagRepository extends JpaRepository<Tag, String> {
     @Modifying
     @Transactional
     @Query("update Tag tag set tag.tagUpdated = ?1 where tag.tagname=?2 and tag.useri=?3")
-    int updateAllTOnUpdate(String time, String tagname, String userId);
+    int updateAllTOnUpdate(LocalDateTime time, String tagname, String userId);
     
 }

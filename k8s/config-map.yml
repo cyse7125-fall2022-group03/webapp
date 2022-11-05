@@ -1,0 +1,10 @@
+# Configuration for RDS
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: team3-configmap
+data:
+  DB_DATABASE: todo
+  DB_HOST: "terraform-20221104231302834700000001.ckxaha0ycc78.us-east-1.rds.amazonaws.com"
+  DB_PORT: "3306"

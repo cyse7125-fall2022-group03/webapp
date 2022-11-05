@@ -1,0 +1,14 @@
+#Loadbalancer Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: csye7125-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: team3-csye7125
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080

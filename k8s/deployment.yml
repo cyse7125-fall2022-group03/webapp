@@ -1,38 +1,3 @@
-# secrets with RDS username and password
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret
-data:
-  DB_USERNAME: cm9vdA==
-  DB_PASSWORD: cm9vdDEyMzQ1
-
-# Configuration for RDS
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: team3-configmap
-data:
-  DB_DATABASE: todo
-  DB_HOST: "terraform-20221029015057981500000001.crv2qyiznaaf.us-east-1.rds.amazonaws.com"
-  DB_PORT: "3306"
-
-#Loadbalancer Service 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: csye7125-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: team3-csye7125
-  ports:
-  - protocol: "TCP"
-    port: 8080
-    targetPort: 8080
 
 #Deployment with containers    
 ---
@@ -44,9 +9,9 @@ spec:
   selector:
     matchLabels:
       app: team3-csye7125
-  replicas: 3 # No of replicas
+  replicas: 1 # No of replicas
   progressDeadlineSeconds: 300
-  minReadySeconds: 30
+  minReadySeconds: 5
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -63,10 +28,10 @@ spec:
       #init container for flyway
       initContainers:
         - name: schema-migration
-          image: csye7125fall2022group03/dockrepo:dbmigrationimage15
+          image: csye7125fall2022group03/dockrepo:dbmigrationimage16
           env:
           - name: FLYWAY_URL
-            value: "jdbc:mysql://terraform-20221029015057981500000001.crv2qyiznaaf.us-east-1.rds.amazonaws.com:3306/todo"
+            value: "jdbc:mysql://terraform-20221104231302834700000001.ckxaha0ycc78.us-east-1.rds.amazonaws.com:3306/todo"
           - name: FLYWAY_USER
             valueFrom: 
               secretKeyRef:

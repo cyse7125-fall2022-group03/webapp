@@ -1,5 +1,7 @@
 package cyse7125.fall2022.group03.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,16 +32,21 @@ public class User {
     private String email;
     @JSONField(serialize = false)
     private String password;
+    
+
     @Column(name = "account_created", updatable = false, nullable = false)
-    private String accountCreated;
+    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = Shape.STRING)
+    private LocalDateTime accountCreated;
+    
     @Column(name = "account_updated", nullable = false)
-    private String accountUpdated;
+    //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", shape = Shape.STRING)
+    private LocalDateTime accountUpdated;
     
     public User() {
         super();
     }
     public User(String firstName, String middleName, String lastName, String email, String password,
-            String accountCreated, String accountUpdated) {
+    		LocalDateTime accountCreated, LocalDateTime accountUpdated) {
         super();
         this.firstName = firstName;
         this.middleName = middleName;
@@ -86,16 +93,16 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getAccountCreated() {
+    public LocalDateTime getAccountCreated() {
         return accountCreated;
     }
-    public void setAccountCreated(String accountCreated) {
+    public void setAccountCreated(LocalDateTime accountCreated) {
         this.accountCreated = accountCreated;
     }
-    public String getAccountUpdated() {
+    public LocalDateTime getAccountUpdated() {
         return accountUpdated;
     }
-    public void setAccountUpdated(String accountUpdated) {
+    public void setAccountUpdated(LocalDateTime accountUpdated) {
         this.accountUpdated = accountUpdated;
     }
 	

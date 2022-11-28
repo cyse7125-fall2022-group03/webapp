@@ -20,9 +20,12 @@ import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.repository.ListsRepository;
 import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.ListsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ListsServiceImpl implements ListsService {
+	private static final Logger logger = LoggerFactory.getLogger(ListsServiceImpl.class);
 
 	@Autowired
 	ListsRepository listsRepository;
@@ -35,6 +38,7 @@ public class ListsServiceImpl implements ListsService {
 
 	@Override
 	public ResponseEntity<JSONObject> createList(Lists newList) {
+		logger.info("Service - create a list");
 
 		try {
 
@@ -45,6 +49,7 @@ public class ListsServiceImpl implements ListsService {
 			newList = listsRepository.save(listToPut);
 
 		}catch (Exception e){
+			logger.error("createList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -56,19 +61,22 @@ public class ListsServiceImpl implements ListsService {
 
 	@Override
 	public ResponseEntity<JSONObject> getAllLists() {
-
+		logger.info("Service - get all lists of a user");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			List<Lists> listOfLists = listsRepository.findByUserId(user.getUserId());
 
 			if( listOfLists == null || listOfLists.isEmpty()) {
+				logger.error("getAllLists - You dont have any lists");
+
 				return generateResponse("{\"error\":\"You dont have any list\"}", HttpStatus.NOT_FOUND);
 			}
 
 
 			return generateResponse(listOfLists, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getAllLists - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -76,13 +84,15 @@ public class ListsServiceImpl implements ListsService {
 
 	@Override
 	public ResponseEntity<JSONObject> getAList(String id) {
-
+		logger.info("Service - get a list");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			Optional<Lists> list = listsRepository.findById(new ListsIdentity(user.getUserId(), id));
 
 			if( list == null || list.isEmpty()) {
+				logger.error("getAList - You dont have such a list");
+
 				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
@@ -91,6 +101,7 @@ public class ListsServiceImpl implements ListsService {
 			System.out.println(actualLists.toString());
 			return generateResponse(actualLists, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getAList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -120,12 +131,14 @@ public class ListsServiceImpl implements ListsService {
 
 	@Override
 	public ResponseEntity<JSONObject> updateList(Lists  newLists) {
-
+		logger.info("Service - update a list");
 		try {
 			User user = userServiceImpl.getCurrentUser();
 			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(newLists.getListId(), user.getUserId());
 
 			if( existingLists == null) {
+				logger.error("updateList - You dont have such a list");
+
 				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
@@ -135,6 +148,7 @@ public class ListsServiceImpl implements ListsService {
 			listsRepository.save(existingLists);
 
 		} catch (Exception e){
+			logger.error("updateList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -146,12 +160,14 @@ public class ListsServiceImpl implements ListsService {
 
 	@Override
 	public ResponseEntity<JSONObject> deleteList(String listId) {
-
+		logger.info("Service - delete a list");
 		try {
 			User user = userServiceImpl.getCurrentUser();
 			Lists existingLists =  listsRepository.findTaskByListIdAndUserId(listId, user.getUserId());
 
 			if( existingLists == null) {
+				logger.error("deleteList - You dont have such a list");
+
 				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
@@ -161,6 +177,7 @@ public class ListsServiceImpl implements ListsService {
 			deleteTasksOfList(listId, user.getUserId());
 
 		} catch (Exception e) {
+			logger.error("deleteList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -169,7 +186,8 @@ public class ListsServiceImpl implements ListsService {
 	}
 
 
-	public void deleteTasksOfList(String listId, String userID) throws Exception {		
+	public void deleteTasksOfList(String listId, String userID) throws Exception {	
+		logger.info("Service - deleteTasksOfList");	
 		//assumed to call from list method after all lists are deleted for this user        
 
 		List<Task> tasksOfList = taskRepository.findTaskByListIdAndUserId(listId, userID);

@@ -3,7 +3,6 @@ package cyse7125.fall2022.group03.service.Impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,11 +28,13 @@ import cyse7125.fall2022.group03.repository.RemainderRepository;
 import cyse7125.fall2022.group03.repository.TagRepository;
 import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.TaskService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Service
 public class TaskServicceImpl implements TaskService {
+	private static final Logger logger = LoggerFactory.getLogger(TaskServicceImpl.class);
 
 	@Autowired
 	TaskRepository taskRepository;
@@ -53,6 +54,7 @@ public class TaskServicceImpl implements TaskService {
 	//@Transactional
 	@Override
 	public ResponseEntity<JSONObject> createTask(Task newTask) {
+		logger.info("Service - create a task");
 
 		ResponseEntity<JSONObject> result;
 		try {
@@ -81,18 +83,24 @@ public class TaskServicceImpl implements TaskService {
 			//all check before saving
 			if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
 				if (newTask.getTagList().size() > 10) {
+					logger.error("createTask - A task can have only upto 10 tags");
+
 					return generateResponse("{\"error\":\"A task can have only upto 10 tags\"}", HttpStatus.BAD_REQUEST);
 				}
 
 				List<Tag> tagList = newTask.getTagList();
 				for (Tag tag: tagList) {
 					if (tag.getTagname() == null || tag.getTagname().isEmpty()) {
+						logger.error("createTask - Better have empty tagList rather than having a tag with no name");
+
 						return generateResponse("{\"error\":\"Better have empty tagList rather than having a tag with no name\"}", HttpStatus.BAD_REQUEST);
 					}
 				}
 			}            
 			if( newTask.getRemainderList() != null  && !newTask.getRemainderList().isEmpty()) {
 				if (newTask.getRemainderList().size() > 5) {
+					logger.error("createTask - A task can have only upto 5 remainders");
+
 					return generateResponse("{\"error\":\"A task can have only upto 5 remainders\"}", HttpStatus.BAD_REQUEST);
 				}
 			}
@@ -183,12 +191,16 @@ public class TaskServicceImpl implements TaskService {
 
 	@Override
 	public ResponseEntity<JSONObject> getAllTasksUnderAList(String listId) {
+		logger.info("Service - getAllTasksUnderAList");
+
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
+				logger.error("getAllTasksUnderAList - You have no tasks, start creating");
+
 				return generateResponse("{\"error\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
@@ -200,6 +212,8 @@ public class TaskServicceImpl implements TaskService {
 				}
 			}
 			if (finalListOfTasks.isEmpty()) {
+				logger.error("getAllTasksUnderAList - You dont have such a list");
+
 				return generateResponse("{\"error\":\"You dont have such a list\"}", HttpStatus.NOT_FOUND);
 			}
 
@@ -213,12 +227,15 @@ public class TaskServicceImpl implements TaskService {
 	//self
 	@Override
 	public ResponseEntity<JSONObject> getAllTasks() {
+		logger.info("Service - get all task");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
+				logger.error("getAllTasks - You have no tasks, start creating");
+
 				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
@@ -231,12 +248,15 @@ public class TaskServicceImpl implements TaskService {
 
 	@Override
 	public ResponseEntity<JSONObject> getATask(String listId, String taskId) {
+		logger.info("Service - get a task");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			Optional<Task> task = taskRepository.findById(new TaskIdentity(user.getUserId(), listId, taskId));
 
 			if( task == null || task.isEmpty()) {
+				logger.error("getATask - You have no tasks or You dont have such a list/task");
+
 				return generateResponse("{\"error\":\"You have no tasks or You dont have such a list/task\"}", HttpStatus.NOT_FOUND);
 			}
 
@@ -252,6 +272,7 @@ public class TaskServicceImpl implements TaskService {
 
 	@Override
 	public Task getATask(String taskId) {
+		logger.info("Service - get a task");
 
 		//User user = userServiceImpl.getCurrentUser();
 		Task task = taskRepository.findByTaskId(taskId);
@@ -284,7 +305,7 @@ public class TaskServicceImpl implements TaskService {
 	//@Transactional
 	@Override
 	public ResponseEntity<JSONObject> updateTask (Task newTask) {
-
+		logger.info("Service - update a Task");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
@@ -292,36 +313,50 @@ public class TaskServicceImpl implements TaskService {
 
 
 			if (existingTaskToUpdate == null) {
+				logger.error("updateTask - You dont have such a Task");
+
 				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}
 
 			if (newTask.getAccountCreated() != null) {
+				logger.error("updateTask - Can't update Creation Date");
+
 				return generateResponse("{\"error\":\"Can't update Creation Date\"}", HttpStatus.BAD_REQUEST);
 			}
 			if (newTask.getAccountUpdated() != null) {
+				logger.error("updateTask - Can't update Updated Date");
+
 				return generateResponse("{\"error\":\"Can't update Updated Date\"}", HttpStatus.BAD_REQUEST);
 			}
 
 			//all check before saving
 			if( newTask.getTagList() != null  && !newTask.getTagList().isEmpty()) {
 				if (newTask.getTagList().size() > 10) {
+					logger.error("updateTask - A task can have only upto 10 tags");
+
 					return generateResponse("{\"error\":\"A task can have only upto 10 tags\"}", HttpStatus.BAD_REQUEST);
 				}
 
 				List<Tag> tagList = newTask.getTagList();
 				for (Tag tag: tagList) {
 					if (tag.getTagname() == null || tag.getTagname().isEmpty()) {
+						logger.error("updateTask - Better have empty tagList rather than having a tag with no name");
+
 						return generateResponse("{\"error\":\"Better have empty tagList rather than having a tag with no name\"}", HttpStatus.BAD_REQUEST);
 					}
 				}
 			}            
 			if( newTask.getRemainderList() != null  && !newTask.getRemainderList().isEmpty()) {
 				if (newTask.getRemainderList().size() > 5) {
+					logger.error("updateTask - A task can have only upto 5 remainders");
+
 					return generateResponse("{\"error\":\"A task can have only upto 5 remainders\"}", HttpStatus.BAD_REQUEST);
 				}
 			}
 
 			if (newTask.getListId() != null && existingTaskToUpdate.getListId() != newTask.getListId()) {
+				logger.error("updateTask - Changing to another list is a different api - try that");
+
 				return generateResponse("{\"error\":\"Changing to another list is a different api - try that.\"}", HttpStatus.BAD_REQUEST);
 			}
 
@@ -375,12 +410,16 @@ public class TaskServicceImpl implements TaskService {
 			if (newTask.getStatus() != null) {
 				if (newTask.getStatus() != Task.Status.OVERDUE) {
 					if (existingTaskToUpdate.getDueDate().isBefore(LocalDateTime.now())) {
+						logger.error("updateTask - Cannot update status other than overdue when having due date passed");
+
 						return generateResponse("{\"error\":\"Cannot update status other than overdue when having due date passed\"}", HttpStatus.BAD_REQUEST);
 					}else {
 						existingTaskToUpdate.setStatus(newTask.getStatus());
 					}
 				} else {
 					if (existingTaskToUpdate.getDueDate().isAfter(LocalDateTime.now())) {
+						logger.error("updateTask - Cannot update status to overdue when having due date in future");
+
 						return generateResponse("{\"error\":\"Cannot update status to overdue when having due date in future\"}", HttpStatus.BAD_REQUEST);
 					}else {
 						existingTaskToUpdate.setStatus(newTask.getStatus());
@@ -562,12 +601,14 @@ public class TaskServicceImpl implements TaskService {
 
 	@Override
 	public ResponseEntity<JSONObject>  deleteTask(String taskId) {
-
+		logger.info("Service - delete a Task");
 		try {
 			User user = userServiceImpl.getCurrentUser();
 			Task existingTaskToDelete = taskRepository.findTaskByTaskIdAndUserId(taskId, user.getUserId());
 
 			if (existingTaskToDelete == null) {
+				logger.error("deleteTask - You dont have such a Task");
+
 				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}		
 
@@ -585,12 +626,15 @@ public class TaskServicceImpl implements TaskService {
 	//self/{tagname}
 	@Override
 	public ResponseEntity<JSONObject> getAllTasksByTagName(String tagname) {
+		logger.info("Service - getAllTasksByTagName");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
+				logger.error("getAllTasksByTagName - You have no tasks, start creating");
+
 				return generateResponse("{\"success\":\"You have no tasks, start creating\"}", HttpStatus.OK);
 			}
 
@@ -608,6 +652,8 @@ public class TaskServicceImpl implements TaskService {
 			}
 
 			if (listOfTasksByTagName.isEmpty()) {
+				logger.error("getAllTasksByTagName - You have no tasks with that tagname, start creating");
+
 				return generateResponse("{\"success\":\"You have no tasks with that tagname, start creating\"}", HttpStatus.OK);
 			}
 
@@ -620,6 +666,7 @@ public class TaskServicceImpl implements TaskService {
 
 	@Override
 	public ResponseEntity<JSONObject> changeTaskToNewList (Task newTask) {
+		logger.info("Service - changeTaskToNewList");
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
@@ -627,14 +674,20 @@ public class TaskServicceImpl implements TaskService {
 
 
 			if (existingTaskToUpdate == null) {
+				logger.error("changeTaskToNewList - You dont have such a Task");
+
 				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}
 
 			if (newTask.getListId() == null) {
+				logger.error("changeTaskToNewList - provide a new list");
+
 				return generateResponse("{\"error\":\"provide a new list\"}", HttpStatus.BAD_REQUEST);
 			}
 
 			if (existingTaskToUpdate.getListId() == newTask.getListId()) {
+				logger.error("changeTaskToNewList - Both are same lists- nothing to updatet");
+
 				return generateResponse("{\"success\":\"Both are same lists- nothing to update\"}", HttpStatus.OK);
 			}
 

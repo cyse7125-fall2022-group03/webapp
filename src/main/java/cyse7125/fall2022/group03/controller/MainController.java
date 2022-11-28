@@ -5,15 +5,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/")
 public class MainController {
+    private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     @GetMapping("/healthz")
     public ResponseEntity<String> getUsers()
     {
-        return ResponseEntity.status(HttpStatus.OK).body("");
+        logger.info("Get - healthz");
 
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

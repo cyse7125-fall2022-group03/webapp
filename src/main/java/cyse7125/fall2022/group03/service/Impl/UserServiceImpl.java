@@ -21,9 +21,12 @@ import cyse7125.fall2022.group03.model.User;
 import cyse7125.fall2022.group03.repository.ListsRepository;
 import cyse7125.fall2022.group03.repository.UserRepository;
 import cyse7125.fall2022.group03.service.UserService; 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserServiceImpl implements UserService {
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Autowired
 	UserRepository userRepository;
@@ -40,22 +43,29 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResponseEntity<JSONObject> createUser(User user) {
+		logger.info("Service - create a user");
 
 		user.setAccountCreated(LocalDateTime.now());
 		user.setAccountUpdated(LocalDateTime.now());
 
 		if (!checkEmailFormat(user.getEmail())){
+			logger.error("createUser - Email Constraints not met");
+
 			return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		//check email already exists
 		if (userRepository.existsByEmail(user.getEmail())){
+			logger.error("createUser - Email Already Exists");
+
 			return  generateResponse("{\"error\":\"Email Already Exists\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		//password constraints
 		String password = user.getPassword();
 		if (!checkPassword(password)){
+			logger.error("createUser - Password Constraints not met");
+
 			return generateResponse("{\"error\":\"Password Constraints not met\"}", HttpStatus.BAD_REQUEST);
 		}
 
@@ -65,7 +75,7 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(newPassword);
 
 		try{
-			System.out.println(JSON.toJSONString(user));
+			//System.out.println(JSON.toJSONString(user));
 
 			userRepository.save(user);
 
@@ -75,6 +85,7 @@ public class UserServiceImpl implements UserService {
 			listsRepository.save(newList);
 
 		}catch (Exception e){
+			logger.error("createUser - Exception");
 			e.printStackTrace();
 			return generateResponse(null, HttpStatus.BAD_REQUEST);
 		}
@@ -138,15 +149,19 @@ public class UserServiceImpl implements UserService {
 	} 
 
 	public ResponseEntity<JSONObject> checkValidUser(User user){
+		logger.info("Service - check valid user");
+
 		if (user == null) {
+			logger.error("checkValidUser - Email not registered");
+
 			return generateResponse("{\"error\":\"Email not registered\"}", HttpStatus.BAD_REQUEST);
 		}
 
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		System.out.println(((UserDetails)principal).toString());
+		//System.out.println(((UserDetails)principal).toString());
 		String pwd = ((UserDetails)principal).getPassword();
-		System.out.println(pwd);
-		System.out.println(user.getPassword());
+		//System.out.println(pwd);
+		//System.out.println(user.getPassword());
 		//String hashedPwd = BCrypt.hashpw(pwd, BCrypt.gensalt());
 
 		//if (user.getPassword().equals(pwd)) {
@@ -168,6 +183,7 @@ public class UserServiceImpl implements UserService {
 			//password to be removed from json
 			return generateResponse(user, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getUserDetails - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -175,7 +191,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResponseEntity<JSONObject> updateEmail(Map<String, String> request) {
-
+		logger.info("Service - update user email");
+		
 		try {
 			User user = getCurrentUser();
 			ResponseEntity<JSONObject> result = checkValidUser(user);
@@ -185,14 +202,20 @@ public class UserServiceImpl implements UserService {
 
 			String newEmail = request.get("email");
 			if (newEmail == null) {
+				logger.error("updateEmail - Please enter a valid value to key email");
+
 				return generateResponse("{\"error\":\"Please enter a valid value to key email\"}", HttpStatus.BAD_REQUEST);
 			}
 			if (!checkEmailFormat(newEmail)){
+				logger.error("updateEmail - Email Constraints not met");
+
 				return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
 			}
 
 			User testUser = userRepository.findByEmail(newEmail);
 			if (testUser != null) {
+				logger.error("updateEmail - Email id already exists in DB");
+
 				return generateResponse("{\"error\":\"Email id already exists in DB\"}", HttpStatus.BAD_REQUEST);
 			}
 
@@ -204,6 +227,7 @@ public class UserServiceImpl implements UserService {
 			return generateResponse(user, HttpStatus.OK);
 
 		} catch (Exception e) {
+			logger.error("updateEmail - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -211,6 +235,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResponseEntity<JSONObject> updateUser(User newUserValues) {
+		logger.info("Service - update user details");
+
 		try {
 			User user = getCurrentUser();
 
@@ -219,9 +245,13 @@ public class UserServiceImpl implements UserService {
 				return result;
 			}
 			if (newUserValues.getAccountCreated()!=null || newUserValues.getAccountUpdated()!=null || newUserValues.getUserId()!=null) {
+				logger.error("updateUser - Request can not have UserId, Account created or updated");
+
 				return generateResponse("{\"error\":\"Request can not have UserId, Account created or updated\"}", HttpStatus.BAD_REQUEST);
 			}
 			if (newUserValues.getEmail() != null && !newUserValues.getEmail().equals(user.getEmail())) {
+				logger.error("updateUser - Email should be updated through another API");
+
 				return generateResponse("{\"error\":\"Email should be updated through another API\"}", HttpStatus.BAD_REQUEST);
 			}		
 
@@ -243,6 +273,7 @@ public class UserServiceImpl implements UserService {
 			return generateResponse(user, HttpStatus.OK);
 
 		} catch (Exception e) {
+			logger.error("updateUser - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}

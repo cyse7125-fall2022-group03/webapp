@@ -181,7 +181,8 @@ public class TaskServicceImpl implements TaskService {
 			newTask = taskRepository.save(newTask);
 
 
-		}catch (Exception e){
+		} catch (Exception e){
+			logger.error("createTask - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -219,6 +220,7 @@ public class TaskServicceImpl implements TaskService {
 
 			return generateResponse(finalListOfTasks, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getAllTasksUnderAList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -241,6 +243,7 @@ public class TaskServicceImpl implements TaskService {
 
 			return generateResponse(listOfTasks, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getAllTasks - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -265,6 +268,7 @@ public class TaskServicceImpl implements TaskService {
 			System.out.println(actualLists.toString());
 			return generateResponse(actualLists, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getATask - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -592,6 +596,7 @@ public class TaskServicceImpl implements TaskService {
 			taskRepository.save(existingTaskToUpdate);
 
 		} catch (Exception e){
+			logger.error("updateTask - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -615,6 +620,7 @@ public class TaskServicceImpl implements TaskService {
 			taskRepository.delete(existingTaskToDelete);
 
 		} catch (Exception e) {
+			logger.error("deleteTask - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -659,6 +665,7 @@ public class TaskServicceImpl implements TaskService {
 
 			return generateResponse(listOfTasksByTagName, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("getAllTasksByTagName - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
@@ -725,6 +732,7 @@ public class TaskServicceImpl implements TaskService {
 
 			return generateResponse(newTask, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("changeTaskToNewList - Exception");
 			e.printStackTrace();
 			return generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}

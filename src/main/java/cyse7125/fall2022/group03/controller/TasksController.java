@@ -21,17 +21,39 @@ import cyse7125.fall2022.group03.model.Task;
 import cyse7125.fall2022.group03.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.prometheus.client.Counter;
+import io.prometheus.client.CollectorRegistry;
 
 @RestController
 @RequestMapping("/v1/user")
 public class TasksController {
 	private static final Logger logger = LoggerFactory.getLogger(TasksController.class);
-
+	final Counter task_getAllTasks_Requests;
+    final Counter task_getAllTasksByTagName_Requests;
+    final Counter task_getATask_Requests;
+    final Counter task_getAllTasksUnderAList_Requests;
+    final Counter task_createTask_Requests;
+    final Counter task_updateTask_Requests;
+    final Counter task_deleteTask_Requests;
+    final Counter task_changeTaskToNewList_Requests;
+    
+    public TasksController(CollectorRegistry registry) {
+    	task_getAllTasks_Requests = Counter.build().name("task_getAllTasks").help("task getAllTasks").register(registry);
+    	task_getAllTasksByTagName_Requests = Counter.build().name("task_getAllTasksByTagName").help("task getAllTasksByTagName").register(registry);
+    	task_getATask_Requests = Counter.build().name("task_getATask").help("task getATask").register(registry);
+    	task_getAllTasksUnderAList_Requests = Counter.build().name("task_getAllTasksUnderAList").help("task getAllTasksUnderAList").register(registry);
+    	task_createTask_Requests = Counter.build().name("task_createTask").help("task createTask").register(registry);
+    	task_updateTask_Requests = Counter.build().name("task_updateTask").help("task updateTask").register(registry);
+    	task_deleteTask_Requests = Counter.build().name("task_deleteTask").help("task deleteTask").register(registry);
+    	task_changeTaskToNewList_Requests = Counter.build().name("task_changeTaskToNewList").help("task changeTaskToNewList").register(registry);
+    }
+    
 	@Autowired
 	TaskService taskService;
 
 	@GetMapping("/self")
 	public ResponseEntity<JSONObject> getAllTasks() {
+		task_getAllTasks_Requests.inc();
 		logger.info("Get - all tasks of user");
 
 		return taskService.getAllTasks();
@@ -39,6 +61,7 @@ public class TasksController {
 
 	@GetMapping("/self/{tagname}")
 	public ResponseEntity<JSONObject> getAllTasksByTagName(@PathVariable String tagname) {
+		task_getAllTasksByTagName_Requests.inc();
 		logger.info("Get - all tasks of user with a tagname");
 
 		if(tagname == null) {
@@ -52,6 +75,7 @@ public class TasksController {
 
 	@GetMapping("/task/{listId}/{taskId}")
 	public ResponseEntity<JSONObject> getATask(@PathVariable String listId, @PathVariable String taskId) {
+		task_getATask_Requests.inc();
 		logger.info("Get - a task with taskId under listId");
 
 		if (listId == null || listId.isBlank() || taskId == null || taskId.isBlank()) {
@@ -66,6 +90,7 @@ public class TasksController {
 
 	@GetMapping("/task/{listId}")
 	public ResponseEntity<JSONObject> getAllTasksUnderAList(@PathVariable String listId) {
+		task_getAllTasksUnderAList_Requests.inc();
 		logger.info("Get - all tasks under listId");
 
 		if (listId == null || listId.isBlank()) {
@@ -79,6 +104,7 @@ public class TasksController {
 
 	@PostMapping("/task/create")
 	public ResponseEntity<JSONObject> createTask(@RequestBody Task newTask) {
+		task_createTask_Requests.inc();
 		logger.info("Post - create a task");
 
 		if (newTask == null) {
@@ -133,6 +159,7 @@ public class TasksController {
 
 	@PutMapping("/task/update")
 	public ResponseEntity<JSONObject> updateTask(@RequestBody Task newTask) {
+		task_updateTask_Requests.inc();
 		logger.info("Put - update a task");
 
 		if (newTask == null) {
@@ -170,6 +197,7 @@ public class TasksController {
 
 	@DeleteMapping("/task/delete/{taskId}")
 	public ResponseEntity<JSONObject> deleteTask(@PathVariable String taskId) {
+		task_deleteTask_Requests.inc();
 		logger.info("Delete - delete a taskId");
 
 		if (taskId == null) {
@@ -184,6 +212,7 @@ public class TasksController {
 
 	@PutMapping("/task/change")
 	public ResponseEntity<JSONObject> changeTaskToNewList (@RequestBody Task newTask) {
+		task_changeTaskToNewList_Requests.inc();
 		logger.info("Put - change a task to new listId");
 
 		if (newTask == null) {
@@ -192,7 +221,7 @@ public class TasksController {
 			return generateResponse("{\"error\":\"Invalid request body\"}", HttpStatus.BAD_REQUEST);
 		}
 		// And other task variable validations - left
-		System.out.println("test= " + newTask.getTaskId());
+		//System.out.println("test= " + newTask.getTaskId());
 		if (newTask.getTaskId() == null) {
 			logger.error("Put - Request must hold Task ID");
 

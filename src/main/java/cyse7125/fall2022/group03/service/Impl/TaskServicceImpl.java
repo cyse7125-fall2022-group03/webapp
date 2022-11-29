@@ -30,12 +30,32 @@ import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.prometheus.client.Histogram;
+import io.prometheus.client.CollectorRegistry;
 
 
 @Service
 public class TaskServicceImpl implements TaskService {
 	private static final Logger logger = LoggerFactory.getLogger(TaskServicceImpl.class);
-
+	//for db
+	private final Histogram requestLatency_taskDb;
+	private final Histogram requestLatency_remainderDb;
+	private final Histogram requestLatency_commentDb;
+	private final Histogram requestLatency_tagDb;
+	//for kafka
+	//private final Histogram requestLatency_kafka;
+	
+	public TaskServicceImpl(CollectorRegistry registry) {
+		requestLatency_taskDb = Histogram.build()
+                .name("requests_latency_seconds_taskDb").help("taskDb Request latency in seconds").register(registry);
+		requestLatency_remainderDb = Histogram.build()
+                .name("requests_latency_seconds_remainderDb").help("remainderDb Request latency in seconds").register(registry);
+		requestLatency_commentDb = Histogram.build()
+                .name("requests_latency_seconds_commentDb").help("commentDb Request latency in seconds").register(registry);
+		requestLatency_tagDb = Histogram.build()
+                .name("requests_latency_seconds_tagDb").help("tagDb Request latency in seconds").register(registry);
+    }
+	
 	@Autowired
 	TaskRepository taskRepository;
 	@Autowired
@@ -61,8 +81,10 @@ public class TaskServicceImpl implements TaskService {
 
 			User user = userServiceImpl.getCurrentUser();
 
+			//Histogram.Timer requestTimer1 = requestLatency_taskDb.startTimer();
 			//is the newlist of same user
 			result = listsServiceImpl.getAList(newTask.getListId());
+			//requestTimer1.observeDuration();
 
 			if (result.getStatusCode() != HttpStatus.OK) {
 				return result;
@@ -110,10 +132,12 @@ public class TaskServicceImpl implements TaskService {
 				List<Tag> tagList = newTask.getTagList();
 				for (Tag tag: tagList) {
 
+					Histogram.Timer requestTimer3 = requestLatency_tagDb.startTimer();
 					//if tag available use it, else new one
 					List<Tag> existTagList = tagRepository.findTagByTagnameAndUserId(tag.getTagname(), user.getUserId());
 					//Optional<Tag> existTagList = tagRepository.findById(new TagIdentity(user.getUserId(), tag.getTagname()));
-
+					requestTimer3.observeDuration();
+					
 					if( existTagList == null || existTagList.isEmpty()) {
 						//create new tag
 						tag.setUseri(user.getUserId());
@@ -124,7 +148,10 @@ public class TaskServicceImpl implements TaskService {
 
 						//tag.setTaskObject(newTask); //?
 
+						Histogram.Timer requestTimer4 = requestLatency_tagDb.startTimer();
 						tagRepository.save(tag);
+						requestTimer4.observeDuration();
+						
 					} else {
 						//List<Tag> actualLists = existTagList.isPresent() ? Collections.singletonList(existTagList.get()) : Collections.emptyList();
 						Tag existTag = existTagList.get(0);
@@ -140,8 +167,13 @@ public class TaskServicceImpl implements TaskService {
 
 						//tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), user.getUserId());		//update tagUpdated in multiple taskid rows
 						//tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), existTag.getTaskObject().getTaskId());		//update tagUpdated in multiple taskid rows
+						Histogram.Timer requestTimer5 = requestLatency_tagDb.startTimer();
 						tagRepository.updateTagUpdated(tag.getTagUpdated(), tag.getTagname(), tag.getUseri());	
+						requestTimer5.observeDuration();
+						
+						Histogram.Timer requestTimer6 = requestLatency_tagDb.startTimer();
 						tagRepository.save(tag);
+						requestTimer6.observeDuration();
 					}               
 				}
 			}
@@ -154,7 +186,9 @@ public class TaskServicceImpl implements TaskService {
 					comment.setCommentCreated(LocalDateTime.now());
 					comment.setCommentUpdated(LocalDateTime.now());
 
+					Histogram.Timer requestTimer7 = requestLatency_commentDb.startTimer();
 					commentRepository.save(comment);
+					requestTimer7.observeDuration();
 				}
 			}
 
@@ -172,14 +206,16 @@ public class TaskServicceImpl implements TaskService {
 					remainder.setRemainderCreated(LocalDateTime.now());
 					remainder.setRemainderUpdated(LocalDateTime.now());
 
+					Histogram.Timer requestTimer8 = requestLatency_remainderDb.startTimer();
 					remainderRepository.save(remainder);
+					requestTimer8.observeDuration();
 				}
 			}
 
 			//Task taskToPut = new Task(user.getId(), newTask.getListId(), newTask.getSummary(), newTask.getName(), newTask.getDueDate(), String.valueOf(new Date()), String.valueOf(new Date()));
-
+			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			newTask = taskRepository.save(newTask);
-
+			requestTimer2.observeDuration();
 
 		} catch (Exception e){
 			logger.error("createTask - Exception");
@@ -197,7 +233,10 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer = requestLatency_taskDb.startTimer();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
+			requestTimer.observeDuration();
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
 				logger.error("getAllTasksUnderAList - You have no tasks, start creating");
@@ -233,8 +272,11 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer = requestLatency_taskDb.startTimer();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
-
+			requestTimer.observeDuration();
+			
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
 				logger.error("getAllTasks - You have no tasks, start creating");
 
@@ -255,8 +297,11 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer = requestLatency_taskDb.startTimer();
 			Optional<Task> task = taskRepository.findById(new TaskIdentity(user.getUserId(), listId, taskId));
-
+			requestTimer.observeDuration();
+			
 			if( task == null || task.isEmpty()) {
 				logger.error("getATask - You have no tasks or You dont have such a list/task");
 
@@ -313,8 +358,10 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer1 = requestLatency_taskDb.startTimer();
 			Task existingTaskToUpdate = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
-
+			requestTimer1.observeDuration();
 
 			if (existingTaskToUpdate == null) {
 				logger.error("updateTask - You dont have such a Task");
@@ -501,8 +548,10 @@ public class TaskServicceImpl implements TaskService {
 
 					oldMapping.put(tag.getTagname(), tag.getTagCreated());
 
+					Histogram.Timer requestTimer3 = requestLatency_tagDb.startTimer();
 					//remainderRepository.deleteByRemainderId(remainder.getRemainderId());
 					tagRepository.delete(tag);
+					requestTimer3.observeDuration();
 				}
 
 				// mapping of old value vs new values ?
@@ -523,11 +572,15 @@ public class TaskServicceImpl implements TaskService {
 
 					tag.setTagUpdated(LocalDateTime.now());
 
+					Histogram.Timer requestTimer4 = requestLatency_tagDb.startTimer();
 					tagRepository.save(tag);
+					requestTimer4.observeDuration();
 
 					//after saving, updating for all tasks of that tagname of user
 					if (toUpdate) {
+						Histogram.Timer requestTimer5 = requestLatency_tagDb.startTimer();
 						tagRepository.updateAllTOnUpdate(LocalDateTime.now(), tag.getTagname(), user.getUserId());
+						requestTimer5.observeDuration();
 					}
 				}
 				existingTaskToUpdate.setTagList(tagLists);
@@ -542,8 +595,10 @@ public class TaskServicceImpl implements TaskService {
 
 					oldMapping.put(remainder.getDateTime(), remainder.getRemainderCreated());
 
+					Histogram.Timer requestTimer9 = requestLatency_remainderDb.startTimer();
 					//remainderRepository.deleteByRemainderId(remainder.getRemainderId());
 					remainderRepository.delete(remainder);
+					requestTimer9.observeDuration();
 				}
 				List<Remainder> remainderLists = newTask.getRemainderList();
 				for (Remainder remainder : remainderLists) {
@@ -555,7 +610,10 @@ public class TaskServicceImpl implements TaskService {
 					}
 
 					remainder.setRemainderUpdated(LocalDateTime.now());
+					
+					Histogram.Timer requestTimer10 = requestLatency_remainderDb.startTimer();
 					remainderRepository.save(remainder);
+					requestTimer10.observeDuration();
 				}
 				existingTaskToUpdate.setRemainderList(remainderLists);
 			}
@@ -571,8 +629,13 @@ public class TaskServicceImpl implements TaskService {
 					oldMapping.put(comment.getComment(), comment.getCommentCreated());
 
 					//commentRepository.deleteById(null);
+					Histogram.Timer requestTimer6 = requestLatency_commentDb.startTimer();
 					commentRepository.delete(comment);
+					requestTimer6.observeDuration();
+					
+					Histogram.Timer requestTimer7 = requestLatency_commentDb.startTimer();
 					commentRepository.deleteByCommentId(comment.getCommentId());
+					requestTimer7.observeDuration();
 
 				}
 				List<Comment> commentLists = newTask.getCommentList();
@@ -585,15 +648,19 @@ public class TaskServicceImpl implements TaskService {
 					}
 
 					comment.setCommentUpdated(LocalDateTime.now());
-
+					
+					Histogram.Timer requestTimer8 = requestLatency_commentDb.startTimer();
 					commentRepository.save(comment);
+					requestTimer8.observeDuration();
 				}
 				existingTaskToUpdate.setCommentList(commentLists);
 			}
 
 			existingTaskToUpdate.setAccountUpdated(LocalDateTime.now());
 
+			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			taskRepository.save(existingTaskToUpdate);
+			requestTimer2.observeDuration();
 
 		} catch (Exception e){
 			logger.error("updateTask - Exception");
@@ -609,15 +676,20 @@ public class TaskServicceImpl implements TaskService {
 		logger.info("Service - delete a Task");
 		try {
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer1 = requestLatency_taskDb.startTimer();
 			Task existingTaskToDelete = taskRepository.findTaskByTaskIdAndUserId(taskId, user.getUserId());
-
+			requestTimer1.observeDuration();
+			
 			if (existingTaskToDelete == null) {
 				logger.error("deleteTask - You dont have such a Task");
 
 				return generateResponse("{\"error\":\"You dont have such a Task\"}", HttpStatus.NOT_FOUND);
 			}		
 
+			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			taskRepository.delete(existingTaskToDelete);
+			requestTimer2.observeDuration();
 
 		} catch (Exception e) {
 			logger.error("deleteTask - Exception");
@@ -636,7 +708,10 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer = requestLatency_taskDb.startTimer();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
+			requestTimer.observeDuration();
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
 				logger.error("getAllTasksByTagName - You have no tasks, start creating");
@@ -677,8 +752,10 @@ public class TaskServicceImpl implements TaskService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer3 = requestLatency_taskDb.startTimer();
 			Task existingTaskToUpdate = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
-
+			requestTimer3.observeDuration();
 
 			if (existingTaskToUpdate == null) {
 				logger.error("changeTaskToNewList - You dont have such a Task");
@@ -722,11 +799,14 @@ public class TaskServicceImpl implements TaskService {
 			newTask.setSummary(existingTaskToUpdate.getSummary());
 			newTask.setTagList(existingTaskToUpdate.getTagList());
 
-
+			Histogram.Timer requestTimer1 = requestLatency_taskDb.startTimer();
 			taskRepository.delete(existingTaskToUpdate);
+			requestTimer1.observeDuration();
 
+			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			newTask = taskRepository.save(newTask);
-
+			requestTimer2.observeDuration();
+			
 			//existingTaskToUpdate = taskRepository.findTaskByTaskIdAndUserId(newTask.getTaskId(), user.getUserId());
 
 

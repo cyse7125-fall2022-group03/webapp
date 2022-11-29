@@ -23,11 +23,26 @@ import cyse7125.fall2022.group03.service.Impl.UserServiceImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.prometheus.client.Counter;
+import io.prometheus.client.CollectorRegistry;
 
 @RestController
 @RequestMapping("/v1/user")
 public class ListsController {
     private static final Logger logger = LoggerFactory.getLogger(ListsController.class);
+    final Counter list_GetAllLists_Requests;
+    final Counter list_GetAList_Requests;
+    final Counter list_createList_Requests;
+    final Counter list_updateList_Requests;
+    final Counter list_deleteList_Requests;
+    
+    public ListsController(CollectorRegistry registry) {
+    	list_GetAllLists_Requests = Counter.build().name("list_GetAllLists").help("list GetAllLists").register(registry);
+    	list_GetAList_Requests = Counter.build().name("list_GetAList").help("list GetAList").register(registry);
+    	list_createList_Requests = Counter.build().name("list_createList").help("list createList").register(registry);
+    	list_updateList_Requests = Counter.build().name("list_updateList").help("list updateList").register(registry);
+    	list_deleteList_Requests = Counter.build().name("list_deleteList").help("list deleteList").register(registry);
+    }
     
     @Autowired
     UserServiceImpl userServiceImpl;
@@ -38,6 +53,7 @@ public class ListsController {
     
     @GetMapping("/lists")
     public ResponseEntity<JSONObject> getAllLists() {
+    	list_GetAllLists_Requests.inc();
         logger.info("Get - all lists");
         
         return listsService.getAllLists();         
@@ -45,6 +61,7 @@ public class ListsController {
     
     @GetMapping("/list/{listId}")
     public ResponseEntity<JSONObject> getAList(@PathVariable String listId) {
+    	list_GetAList_Requests.inc();
         logger.info("Get - a list");
 
         if (listId == null || listId.isBlank()) {
@@ -58,6 +75,7 @@ public class ListsController {
     
     @PostMapping("/list/create")
     public ResponseEntity<JSONObject> createList(@RequestBody Lists newList) {
+    	list_createList_Requests.inc();
         logger.info("Post - create a list");
 
         if (newList == null) {
@@ -84,6 +102,7 @@ public class ListsController {
     
     @PutMapping("/list/update")
     public ResponseEntity<JSONObject> updateList(@RequestBody Lists newLists) {
+    	list_updateList_Requests.inc();
     	logger.info("Put - update a list");
 
         if (newLists == null) {
@@ -116,6 +135,7 @@ public class ListsController {
 
     @DeleteMapping("/list/delete/{listId}")
     public ResponseEntity<JSONObject> deleteList(@PathVariable String listId) {
+    	list_deleteList_Requests.inc();
     	logger.info("Delete - delete a list with param");
         
     	if (listId == null) {

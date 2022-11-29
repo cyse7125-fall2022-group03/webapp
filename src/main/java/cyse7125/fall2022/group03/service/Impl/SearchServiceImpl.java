@@ -17,11 +17,19 @@ import cyse7125.fall2022.group03.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.prometheus.client.Histogram;
+import io.prometheus.client.CollectorRegistry;
 
 @Service
 public class SearchServiceImpl implements SearchService {
 	private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
-			
+	private final Histogram requestLatency_searchTaskDb;
+	
+	public SearchServiceImpl(CollectorRegistry registry) {
+		requestLatency_searchTaskDb = Histogram.build()
+                .name("requests_latency_seconds_searchTaskDb").help("searchTaskDb Request latency in seconds").register(registry);
+    }
+	
 	@Autowired
 	UserServiceImpl userServiceImpl;
 	
@@ -34,7 +42,10 @@ public class SearchServiceImpl implements SearchService {
 		try {
 
 			User user = userServiceImpl.getCurrentUser();
+			
+			Histogram.Timer requestTimer = requestLatency_searchTaskDb.startTimer();
 			List<Task> listOfTasks = taskRepository.findByUserId(user.getUserId());
+			requestTimer.observeDuration();
 
 			if( listOfTasks == null || listOfTasks.isEmpty()) {
 				logger.info("getSearchTasks - You have no tasks, start creating");

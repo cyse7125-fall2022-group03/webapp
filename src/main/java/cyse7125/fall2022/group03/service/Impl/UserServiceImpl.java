@@ -23,11 +23,19 @@ import cyse7125.fall2022.group03.repository.UserRepository;
 import cyse7125.fall2022.group03.service.UserService; 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.prometheus.client.Histogram;
+import io.prometheus.client.CollectorRegistry;
 
 @Service
 public class UserServiceImpl implements UserService {
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
+	private final Histogram requestLatency_userDb;
+	
+	public UserServiceImpl(CollectorRegistry registry) {
+        requestLatency_userDb = Histogram.build()
+                .name("requests_latency_seconds_userDb").help("userDb Request latency in seconds").register(registry);
+    }
+	
 	@Autowired
 	UserRepository userRepository;
 
@@ -54,12 +62,14 @@ public class UserServiceImpl implements UserService {
 			return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
 		}
 
+		Histogram.Timer requestTimer = requestLatency_userDb.startTimer();
 		//check email already exists
 		if (userRepository.existsByEmail(user.getEmail())){
 			logger.error("createUser - Email Already Exists");
 
 			return  generateResponse("{\"error\":\"Email Already Exists\"}", HttpStatus.BAD_REQUEST);
 		}
+		requestTimer.observeDuration();
 
 		//password constraints
 		String password = user.getPassword();
@@ -74,6 +84,7 @@ public class UserServiceImpl implements UserService {
 		String newPassword = bCryptPasswordEncoder.encode(password);
 		user.setPassword(newPassword);
 
+		Histogram.Timer requestTimer2 = requestLatency_userDb.startTimer();
 		try{
 			//System.out.println(JSON.toJSONString(user));
 
@@ -88,6 +99,8 @@ public class UserServiceImpl implements UserService {
 			logger.error("createUser - Exception");
 			e.printStackTrace();
 			return generateResponse(null, HttpStatus.BAD_REQUEST);
+		} finally {
+			requestTimer2.observeDuration();
 		}
 
 		return generateResponse(user, HttpStatus.CREATED);
@@ -159,6 +172,7 @@ public class UserServiceImpl implements UserService {
 
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		//System.out.println(((UserDetails)principal).toString());
+		@SuppressWarnings("unused")
 		String pwd = ((UserDetails)principal).getPassword();
 		//System.out.println(pwd);
 		//System.out.println(user.getPassword());
@@ -212,7 +226,9 @@ public class UserServiceImpl implements UserService {
 				return generateResponse("{\"error\":\"Email Constraints not met\"}", HttpStatus.BAD_REQUEST);
 			}
 
+			Histogram.Timer requestTimer2 = requestLatency_userDb.startTimer();
 			User testUser = userRepository.findByEmail(newEmail);
+			requestTimer2.observeDuration();
 			if (testUser != null) {
 				logger.error("updateEmail - Email id already exists in DB");
 
@@ -222,7 +238,9 @@ public class UserServiceImpl implements UserService {
 			user.setEmail(newEmail);
 			user.setAccountUpdated(LocalDateTime.now());
 
+			Histogram.Timer requestTimer = requestLatency_userDb.startTimer();
 			userRepository.save(user);
+			requestTimer.observeDuration();
 
 			return generateResponse(user, HttpStatus.OK);
 
@@ -267,8 +285,10 @@ public class UserServiceImpl implements UserService {
 			if(newUserValues.getPassword() != null) {
 				user.setPassword(newUserValues.getPassword());
 			}
-
+			
+			Histogram.Timer requestTimer = requestLatency_userDb.startTimer();
 			userRepository.save(user);
+			requestTimer.observeDuration();
 
 			return generateResponse(user, HttpStatus.OK);
 

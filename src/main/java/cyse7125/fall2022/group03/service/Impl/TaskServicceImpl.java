@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.prometheus.client.Histogram;
 import io.prometheus.client.CollectorRegistry;
-
+import cyse7125.fall2022.group03.config.KafkaProducer;
 
 @Service
 public class TaskServicceImpl implements TaskService {
@@ -70,6 +70,9 @@ public class TaskServicceImpl implements TaskService {
 
 	@Autowired
 	ListsServiceImpl listsServiceImpl;
+
+	@Autowired
+	private KafkaProducer kafkaProducer;
 
 	//@Transactional
 	@Override
@@ -216,6 +219,10 @@ public class TaskServicceImpl implements TaskService {
 			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			newTask = taskRepository.save(newTask);
 			requestTimer2.observeDuration();
+
+			//send kafka message
+			kafkaProducer.sendMessage(newTask.toString());
+			kafkaProducer.sendMessageAsJson(newTask);
 
 		} catch (Exception e){
 			logger.error("createTask - Exception");
@@ -661,6 +668,10 @@ public class TaskServicceImpl implements TaskService {
 			Histogram.Timer requestTimer2 = requestLatency_taskDb.startTimer();
 			taskRepository.save(existingTaskToUpdate);
 			requestTimer2.observeDuration();
+
+			//send kafka message
+			kafkaProducer.sendMessage(existingTaskToUpdate.toString());
+			kafkaProducer.sendMessageAsJson(existingTaskToUpdate);
 
 		} catch (Exception e){
 			logger.error("updateTask - Exception");

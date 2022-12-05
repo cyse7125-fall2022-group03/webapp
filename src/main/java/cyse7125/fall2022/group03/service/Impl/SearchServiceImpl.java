@@ -3,8 +3,6 @@ package cyse7125.fall2022.group03.service.Impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.search.SearchRequest;
@@ -15,10 +13,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,8 +101,7 @@ public class SearchServiceImpl implements SearchService {
 			searchRequest.source(sourceBuilder);
 			
 			SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-			
-			SearchHits temphits = response.getHits();
+
 			//logger.debug("csye: getTotalHits="+response.getHits().getTotalHits().value);
 
 			SearchHit[] searchHits = response.getHits().getHits();

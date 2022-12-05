@@ -30,6 +30,7 @@ public class SearchController {
 
     @GetMapping("/search")
     public ResponseEntity<JSONObject> getAllMatches(@RequestParam String keyword) {
+    	 logger.debug("csye: Get - all matches");
     	search_getAllMatches_Requests.inc();
         logger.info("Get - all matches");
         

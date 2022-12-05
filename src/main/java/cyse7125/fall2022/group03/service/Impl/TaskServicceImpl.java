@@ -221,7 +221,7 @@ public class TaskServicceImpl implements TaskService {
 			requestTimer2.observeDuration();
 
 			//send kafka message
-			kafkaProducer.sendMessage(newTask.toString());
+			//kafkaProducer.sendMessage(newTask.toString());
 			kafkaProducer.sendMessageAsJson(newTask);
 
 		} catch (Exception e){
@@ -670,7 +670,7 @@ public class TaskServicceImpl implements TaskService {
 			requestTimer2.observeDuration();
 
 			//send kafka message
-			kafkaProducer.sendMessage(existingTaskToUpdate.toString());
+			//kafkaProducer.sendMessage(existingTaskToUpdate.toString());
 			kafkaProducer.sendMessageAsJson(existingTaskToUpdate);
 
 		} catch (Exception e){

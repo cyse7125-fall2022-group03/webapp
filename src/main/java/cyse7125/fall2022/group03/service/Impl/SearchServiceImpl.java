@@ -35,11 +35,18 @@ import cyse7125.fall2022.group03.repository.TaskRepository;
 import cyse7125.fall2022.group03.service.SearchService;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Histogram;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class SearchServiceImpl implements SearchService {
 	private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
 	private final Histogram requestLatency_searchTaskDb;
+
+	@Value("${elasticsearch.host}")
+    private String elasticSearchHost;
+
+	@Value("${elasticsearch.port}")
+    private String elasticSearchPort;
 	
 	public SearchServiceImpl(CollectorRegistry registry) {
 		requestLatency_searchTaskDb = Histogram.build()
@@ -76,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
 			}
 			
 			RestHighLevelClient client = new RestHighLevelClient(
-					RestClient.builder(new HttpHost("elasticsearch-master", 9200, "http")));
+					RestClient.builder(new HttpHost(elasticSearchHost, Integer.valueOf(elasticSearchPort), "http")));
 			
 //			QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("userId", user.getUserId());
 //		    QueryBuilder matchQueryBuilder1 = QueryBuilders.matchQuery("summary", keyword);

@@ -6,25 +6,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class KafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
 
-    private String topicString = "topic02-team3";
+    @Value("${kafka.topic}")
+    private String topicName;
+
+    //private String topicString = "topic02-team3";
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
    
     public void sendMessage(String task){
-        LOGGER.info(String.format("Message sent %s -> %s", topicString, task));
-        kafkaTemplate.send(topicString, task);
+        LOGGER.info(String.format("Message sent %s -> %s", topicName, task));
+        kafkaTemplate.send(topicName, task);
     }
     
     public void sendMessageAsJson(Task task){
-        LOGGER.info(String.format("Message sent as json %s -> %s", topicString, task.toString()));
-        kafkaTemplate.send(topicString, task);
+        LOGGER.info(String.format("Message sent as json %s -> %s", topicName, task.toString()));
+        kafkaTemplate.send(topicName, task);
     }
 }
